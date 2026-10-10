@@ -1,0 +1,1852 @@
+<title>词汇量 Chinese Vocabulary Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;600;700&family=Noto+Serif+TC:wght@400;600;700&display=swap">
+<style>
+/* Layout: one calm column like a workbook page; the word sits in red 田字格 practice squares.
+   Motion: strong custom curves, transform/opacity only, under 300ms for UI; delight only on the
+   once-per-session moments (landing, result reveal). Surfaces use soft rings + shadows, not hard borders. */
+:root {
+  --bg: #eef1ec;
+  --surface: #f9fbf7;
+  --ink: #18201c;
+  --muted: #5b6a62;
+  --line: #cdd6cf;
+  --accent: #1f6b59;
+  --accent-ink: #f4faf7;
+  --accent-soft: #dcebe4;
+  --grid: #c9473b;
+  --good: #2c7a4b;
+  --good-soft: #dff0e4;
+  --bad: #b1402f;
+  --bad-soft: #f6e1dc;
+  --c-read: #0f7d5c;
+  --c-hear: #3563b8;
+  --c-write: #b0661c;
+  --ring: 0 0 0 1px rgb(24 32 28 / .09);
+  --ring-strong: 0 0 0 1px rgb(24 32 28 / .16);
+  --shadow-sm: 0 1px 2px rgb(24 32 28 / .05);
+  --shadow-md: 0 1px 2px rgb(24 32 28 / .04), 0 8px 20px -6px rgb(24 32 28 / .10);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --font-ui: "Hanken Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --font-han: "Noto Serif SC", "Songti SC", "SimSun", serif;
+}
+:root[data-script="t"] { --font-han: "Noto Serif TC", "Songti TC", "PMingLiU", serif; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111714; --surface: #19211d; --ink: #e5ece7; --muted: #94a59b; --line: #2d3a33;
+    --accent: #62c2a6; --accent-ink: #0d1512; --accent-soft: #1f3a31; --grid: #d8695c;
+    --good: #6cc98f; --good-soft: #1c3526; --bad: #ec8a78; --bad-soft: #3d221d; --c-read: #3fa886; --c-hear: #5f8ad6; --c-write: #b97a2c;
+    --ring: 0 0 0 1px rgb(255 255 255 / .07); --ring-strong: 0 0 0 1px rgb(255 255 255 / .14);
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / .3); --shadow-md: 0 1px 2px rgb(0 0 0 / .3), 0 8px 24px -6px rgb(0 0 0 / .5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111714; --surface: #19211d; --ink: #e5ece7; --muted: #94a59b; --line: #2d3a33;
+  --accent: #62c2a6; --accent-ink: #0d1512; --accent-soft: #1f3a31; --grid: #d8695c;
+  --good: #6cc98f; --good-soft: #1c3526; --bad: #ec8a78; --bad-soft: #3d221d; --c-read: #3fa886; --c-hear: #5f8ad6; --c-write: #b97a2c;
+  --ring: 0 0 0 1px rgb(255 255 255 / .07); --ring-strong: 0 0 0 1px rgb(255 255 255 / .14);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / .3); --shadow-md: 0 1px 2px rgb(0 0 0 / .3), 0 8px 24px -6px rgb(0 0 0 / .5);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
+html, body { background: var(--bg); color: var(--ink); }
+body { font-family: var(--font-ui); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 680px; margin: 0 auto; padding-inline: 16px; padding-block: 20px 56px; }
+button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.han { font-family: var(--font-han); }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* every pressable thing answers on press */
+.btn, .opt, .len, .tabs button { transition: transform 160ms var(--ease-out), background-color 150ms ease, box-shadow 150ms ease, color 150ms ease; }
+.btn:active, .opt:not([disabled]):active, .len:active, .tabs button:active { transform: scale(0.97); }
+
+/* screens: occasional, so a short settle-in */
+main.view { transition: opacity 280ms var(--ease-out), transform 280ms var(--ease-out); }
+@starting-style { main.view { opacity: 0; transform: translateY(8px); } }
+
+/* header */
+header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 28px; }
+.brand { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
+.brand .han { font-size: 22px; font-weight: 700; letter-spacing: .04em; }
+.brand small { color: var(--muted); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; }
+
+/* script switch: the active pill is a clipped copy of the labels, so text and fill change in one motion */
+.seg { position: relative; display: grid; grid-template-columns: 1fr 1fr; padding: 3px; border-radius: 999px; background: var(--surface); box-shadow: var(--ring), var(--shadow-sm); flex-shrink: 0; }
+.seg button, .seg-active span { border: 0; background: none; padding: 5px 13px; border-radius: 999px; font-family: var(--font-han); font-size: 15px; line-height: 1.4; white-space: nowrap; text-align: center; }
+.seg button { color: var(--muted); }
+.seg-active { position: absolute; inset: 3px; display: grid; grid-template-columns: 1fr 1fr; background: var(--accent); color: var(--accent-ink); border-radius: 999px; pointer-events: none; clip-path: inset(0 50% 0 0 round 999px); }
+.seg[data-active="t"] .seg-active { clip-path: inset(0 0 0 50% round 999px); }
+.seg.ready .seg-active { transition: clip-path 250ms var(--ease-in-out); }
+
+/* 田字格 */
+.tz { display: inline-flex; border: 2px solid var(--grid); background: var(--surface); box-shadow: var(--shadow-md); }
+.tz .cell { position: relative; width: var(--cell, 92px); height: var(--cell, 92px); display: grid; place-items: center; font-family: var(--font-han); font-weight: 600; font-size: calc(var(--cell, 92px) * .68); line-height: 1; flex-shrink: 0; }
+.tz .cell + .cell { border-left: 1.5px solid var(--grid); }
+.tz .cell::before, .tz .cell::after { content: ""; position: absolute; pointer-events: none; opacity: .55; }
+.tz .cell::before { left: 0; right: 0; top: 50%; border-top: 1px dashed var(--grid); }
+.tz .cell::after { top: 0; bottom: 0; left: 50%; border-left: 1px dashed var(--grid); }
+.tz .cell span { position: relative; z-index: 1; }
+
+/* intro */
+.intro { display: grid; gap: 28px; }
+.hero { display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: center; }
+.hero .tz { justify-self: start; }
+/* first-visit delight: the characters are inked in, left to right */
+.hero .tz .cell span { animation: ink 560ms var(--ease-in-out) both; }
+.hero .tz .cell + .cell span { animation-delay: 110ms; }
+@keyframes ink { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.hero h1 { font-size: clamp(28px, 6vw, 40px); line-height: 1.08; margin: 0 0 10px; letter-spacing: -.02em; text-wrap: balance; font-weight: 700; }
+.hero p { margin: 0; color: var(--muted); max-width: 44ch; }
+@media (max-width: 520px) { .brand small { display: none; } .hero { grid-template-columns: 1fr; } .hero .tz { --cell: 76px; } }
+.lengths { display: grid; gap: 10px; }
+.lengths .label { display: block; }
+.lenrow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.len { display: grid; gap: 2px; text-align: left; border: 0; background: var(--surface); border-radius: 12px; padding: 14px 16px; box-shadow: var(--ring), var(--shadow-sm); min-width: 0; }
+.len b { font-size: 16px; font-weight: 700; }
+.len .n { font-family: var(--font-mono); font-size: 20px; font-weight: 500; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+.len span { color: var(--muted); font-size: 13px; }
+.len[aria-checked="true"] { background: var(--accent-soft); box-shadow: 0 0 0 1.5px var(--accent), var(--shadow-sm); }
+.len[aria-checked="true"] b { color: var(--accent); }
+@media (max-width: 520px) { .lenrow { grid-template-columns: 1fr; } .len { grid-template-columns: 1fr auto; align-items: baseline; column-gap: 12px; } .len span { grid-column: 1 / -1; } .len .n { grid-row: 1; grid-column: 2; font-size: 16px; } }
+.how { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.how li { display: grid; grid-template-columns: 22px 1fr; gap: 10px; }
+.how li::before { content: "·"; color: var(--grid); font-weight: 700; font-size: 22px; line-height: 1; text-align: center; }
+.how li > span { min-width: 0; }
+.startrow { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; }
+.label { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.btn { border: 0; background: var(--accent); color: var(--accent-ink); padding: 13px 26px; border-radius: 10px; font-weight: 600; font-size: 17px; box-shadow: var(--shadow-sm), inset 0 1px 0 rgb(255 255 255 / .12); }
+.kbd { font-family: var(--font-mono); font-size: 12px; padding: 1px 6px; border-radius: 5px; background: var(--surface); box-shadow: var(--ring); }
+
+/* test */
+.testbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
+.testbar .count { color: var(--muted); font-size: 14px; white-space: nowrap; }
+.exit { border: 0; background: none; padding: 6px 10px 6px 0; color: var(--muted); font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
+.exit::before { content: "←"; font-family: var(--font-mono); }
+.exit-confirm { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; background: var(--surface); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; box-shadow: var(--ring), var(--shadow-md); font-size: 14px; transform-origin: top left; transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out); }
+@starting-style { .exit-confirm { opacity: 0; transform: scale(.97); } }
+.exit-actions { display: flex; gap: 8px; }
+.btn.small { padding: 8px 14px; font-size: 14px; border-radius: 8px; }
+.btn.ghost { background: transparent; color: var(--ink); box-shadow: var(--ring); }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.meta { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+.meta .label { color: var(--accent); }
+.meta .label { min-width: 0; }
+.bar { height: 4px; background: var(--line); border-radius: 4px; overflow: hidden; margin-bottom: 28px; }
+.bar i { display: block; height: 100%; width: 100%; background: var(--accent); transform: scaleX(0); transform-origin: left center; transition: transform 250ms var(--ease-in-out); }
+.prompt { min-height: 150px; display: grid; place-items: center; text-align: center; margin-bottom: 26px; }
+.prompt .en { font-size: clamp(22px, 5vw, 28px); font-weight: 600; line-height: 1.3; letter-spacing: -.01em; max-width: 28ch; text-wrap: balance; overflow-wrap: anywhere; }
+.opts { display: grid; gap: 10px; }
+.opts.cn { grid-template-columns: 1fr 1fr; }
+.opts.cn.long { grid-template-columns: 1fr; }
+.opts.cn .opt .t { word-break: keep-all; }
+.opt { display: grid; grid-template-columns: 26px minmax(0, 1fr); align-items: center; gap: 12px; text-align: left; background: var(--surface); border: 0; border-radius: 12px; padding: 13px 16px; min-height: 56px; box-shadow: var(--ring), var(--shadow-sm); }
+.opt .k { font-family: var(--font-mono); font-size: 12px; color: var(--muted); border-radius: 6px; width: 24px; height: 24px; display: grid; place-items: center; box-shadow: var(--ring); flex-shrink: 0; }
+.opt .t { min-width: 0; overflow-wrap: anywhere; }
+.opts.cn .opt .t { font-family: var(--font-han); font-size: 26px; font-weight: 600; letter-spacing: .04em; }
+.opt[disabled] { cursor: default; }
+.opt.right { background: var(--good-soft); box-shadow: 0 0 0 1.5px var(--good); }
+.opt.wrong { background: var(--bad-soft); box-shadow: 0 0 0 1.5px var(--bad); }
+.opt.right .k { color: var(--good); box-shadow: 0 0 0 1px var(--good); }
+.opt.wrong .k { color: var(--bad); box-shadow: 0 0 0 1px var(--bad); }
+.opt.dim { opacity: .45; transition: opacity 150ms ease; }
+.feedback { min-height: 64px; margin-top: 16px; text-align: center; color: var(--muted); font-size: 15px; }
+.feedback .han { font-size: 20px; color: var(--ink); font-weight: 600; }
+.feedback .py { color: var(--accent); margin: 0 6px; }
+.countdown { width: 120px; height: 2px; margin: 10px auto 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.countdown i { display: block; height: 100%; background: var(--muted); transform-origin: left center; }
+@media (max-width: 520px) { .opts.cn .opt .t { font-size: 22px; } .prompt { min-height: 120px; } .bandlabels { font-size: 11px; } }
+/* touch screens have no number keys to press: drop the key hints and give the words the room */
+@media (pointer: coarse) {
+  .opt { grid-template-columns: minmax(0, 1fr); }
+  .opt .k, .keys-note { display: none; }
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover { background: color-mix(in oklab, var(--accent) 90%, var(--ink)); }
+  .opt:not([disabled]):hover { box-shadow: 0 0 0 1.5px var(--accent), var(--shadow-sm); }
+  .len:hover { box-shadow: 0 0 0 1.5px var(--accent), var(--shadow-sm); }
+  .seg button:hover { color: var(--ink); }
+  .tabs button:hover { color: var(--ink); }
+  .exit:hover { color: var(--ink); }
+  .btn.ghost:hover { background: var(--accent-soft); }
+}
+
+/* results: a once-per-session reveal, staggered */
+.reveal { animation: rise 320ms var(--ease-out) both; }
+.reveal:nth-child(2) { animation-delay: 60ms; }
+.reveal:nth-child(3) { animation-delay: 120ms; }
+.reveal:nth-child(4) { animation-delay: 180ms; }
+.reveal:nth-child(5) { animation-delay: 240ms; }
+.reveal:nth-child(6) { animation-delay: 300ms; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.result-head { display: grid; gap: 6px; margin-bottom: 26px; }
+.big { font-family: var(--font-mono); font-size: clamp(48px, 13vw, 76px); font-weight: 500; line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums; min-height: 1em; }
+.big number-flow { --number-flow-char-height: 1em; }
+.range { color: var(--muted); }
+.level { font-size: 19px; font-weight: 600; margin-top: 8px; letter-spacing: -.01em; }
+section.card { background: var(--surface); border-radius: 14px; padding: 18px 18px 16px; margin-bottom: 18px; box-shadow: var(--ring), var(--shadow-md); }
+section.card h2 { font-size: 15px; margin: 0 0 4px; font-weight: 700; }
+section.card p.sub { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
+.scale svg { width: 100%; height: auto; display: block; overflow: visible; }
+.bands { display: grid; grid-template-columns: repeat(var(--nb), 1fr); gap: 4px; align-items: end; height: 170px; border-bottom: 1px solid var(--line); position: relative; }
+.bands .gl { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--line); font-size: 11px; color: var(--muted); font-family: var(--font-mono); z-index: 2; pointer-events: none; }
+.bands .gl span { position: absolute; right: 0; top: -15px; background: var(--surface); padding-left: 4px; }
+.bcol { position: relative; height: 100%; display: flex; align-items: flex-end; justify-content: center; min-width: 0; outline-offset: 3px; border-radius: 4px; }
+.bcol .fill { width: 100%; max-width: 72px; background: var(--accent); border-radius: 4px 4px 0 0; min-height: 2px; }
+/* tooltip grows out of its bar; after the first one, neighbours open instantly */
+.tipwrap { position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); z-index: 3; pointer-events: none; }
+.bcol:first-child .tipwrap { left: 0; transform: none; }
+.bcol:last-child .tipwrap { left: auto; right: 0; transform: none; }
+.tip { background: var(--ink); color: var(--bg); font-size: 12px; padding: 6px 8px; border-radius: 7px; white-space: nowrap; opacity: 0; transform: scale(.97); transform-origin: bottom center; transition: opacity 125ms var(--ease-out), transform 125ms var(--ease-out); box-shadow: var(--shadow-md); }
+.bcol:first-child .tip { transform-origin: bottom left; }
+.bcol:last-child .tip { transform-origin: bottom right; }
+.bcol.show .tip, .bcol:focus-visible .tip { opacity: 1; transform: none; }
+.bands[data-instant] .tip { transition-duration: 0ms; }
+.bandlabels { display: grid; grid-template-columns: repeat(var(--nb), 1fr); gap: 4px; margin-top: 8px; font-size: 12px; color: var(--muted); text-align: center; font-family: var(--font-mono); }
+.bandlabels span { min-width: 0; }
+.bandlabels b { display: block; color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); margin-top: 12px; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0 16px; }
+.stats div { min-width: 0; }
+.stats b { display: block; font-family: var(--font-mono); font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.stats span { color: var(--muted); font-size: 13px; }
+.review { display: grid; max-height: 420px; overflow-y: auto; overscroll-behavior: contain; margin: 0 -4px; }
+.rv { display: grid; grid-template-columns: minmax(80px, auto) minmax(0, 1fr) auto; gap: 4px 14px; padding: 9px 4px; border-top: 1px solid var(--line); align-items: baseline; }
+.rv:first-child { border-top: 0; }
+.rv .w { font-family: var(--font-han); font-size: 20px; font-weight: 600; }
+.rv .d { min-width: 0; font-size: 14px; overflow-wrap: anywhere; }
+.rv .d .py { color: var(--accent); display: block; font-size: 13px; }
+.rv .tag { font-size: 11px; color: var(--muted); font-family: var(--font-mono); white-space: nowrap; }
+.rv .tag.right { color: var(--good); }
+.rv .tag.wrong { color: var(--bad); }
+.empty { padding: 10px 4px; color: var(--muted); font-size: 14px; }
+.tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.tabs button { border: 0; background: none; border-radius: 999px; padding: 5px 13px; font-size: 13px; color: var(--muted); box-shadow: var(--ring); }
+.tabs button[aria-pressed="true"] { color: var(--accent); font-weight: 600; box-shadow: 0 0 0 1.5px var(--accent); background: var(--accent-soft); }
+.note { font-size: 13px; color: var(--muted); line-height: 1.55; }
+.note p { margin: 0 0 8px; max-width: 70ch; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 6px 0 24px; }
+.credits { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12px; line-height: 1.6; color: var(--muted); }
+.credits p { margin: 0; max-width: 75ch; }
+.credits a { color: inherit; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 2px; }
+
+/* reduced motion: gentler, not zero. Keep fades and color; drop movement. */
+@media (prefers-reduced-motion: reduce) {
+  .btn:active, .opt:not([disabled]):active, .len:active, .tabs button:active { transform: none; }
+  @starting-style { main.view { transform: none; } }
+  main.view { transition: opacity 200ms ease; }
+  .hero .tz .cell span { animation: fade 300ms ease both; }
+  .reveal { animation: fade 240ms ease both; }
+  .seg.ready .seg-active { transition: none; }
+  .bar i { transition: none; }
+  .tip { transform: none; transition: opacity 125ms ease; }
+  @starting-style { .exit-confirm { transform: none; } }
+  .verdict, .wanswer { animation: fade 200ms ease both; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+}
+
+/* ---------- test picker ---------- */
+.choose { display: grid; gap: 10px; }
+.testrow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 620px) { .testrow { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.test-card .ico { font-family: var(--font-han); font-size: 22px; font-weight: 700; line-height: 1; color: var(--accent); margin-bottom: 6px; }
+.len[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
+.len[aria-disabled="true"] .why { color: var(--bad); }
+.len .why:empty { display: none; }
+@media (max-width: 520px) { .testrow .len { grid-template-columns: 1fr; } .testrow .len span { grid-column: auto; } }
+
+/* ---------- listening ---------- */
+.play { width: 112px; height: 112px; border-radius: 50%; border: 0; display: grid; place-items: center; background: var(--surface); color: var(--accent); box-shadow: 0 0 0 2px var(--accent), var(--shadow-md); transition: transform 160ms var(--ease-out), background-color 150ms ease; }
+.play:active { transform: scale(0.97); }
+.play svg { width: 44px; height: 44px; }
+.play.speaking { background: var(--accent-soft); }
+.listen-prompt { display: grid; justify-items: center; gap: 12px; }
+.listen-prompt .hint { font-size: 13px; color: var(--muted); }
+.linkish { border: 0; background: none; padding: 6px 0; color: var(--muted); font-size: 13px; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line); }
+.subrow { display: flex; justify-content: center; margin-top: 10px; min-height: 30px; }
+
+/* ---------- writing ---------- */
+.wprompt { display: grid; justify-items: center; gap: 6px; text-align: center; }
+.wprompt .en { font-size: clamp(20px, 4.6vw, 26px); font-weight: 600; line-height: 1.3; letter-spacing: -.01em; max-width: 30ch; text-wrap: balance; overflow-wrap: anywhere; }
+.wprompt .py { color: var(--accent); font-size: 17px; display: inline-flex; align-items: center; gap: 8px; }
+.say { border: 0; background: none; color: var(--accent); width: 32px; height: 32px; border-radius: 50%; display: inline-grid; place-items: center; box-shadow: var(--ring); }
+.say svg { width: 18px; height: 18px; }
+.wgrid { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; margin: 20px auto 6px; }
+.wcol { display: grid; justify-items: center; gap: 8px; }
+.wcol .tz { box-shadow: var(--shadow-md); }
+.wcell { position: relative; width: var(--cell); height: var(--cell); flex-shrink: 0; }
+.wcell::before, .wcell::after { content: ""; position: absolute; pointer-events: none; opacity: .55; }
+.wcell::before { left: 0; right: 0; top: 50%; border-top: 1px dashed var(--grid); }
+.wcell::after { top: 0; bottom: 0; left: 50%; border-left: 1px dashed var(--grid); }
+.wcell canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; touch-action: none; cursor: crosshair; }
+.locked .wcell canvas { cursor: default; }
+.cands { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 84px; }
+.pick { font-family: var(--font-han); font-size: 28px; font-weight: 600; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 10px; background: var(--accent-soft); box-shadow: 0 0 0 1.5px var(--accent); }
+.pick.empty { background: none; box-shadow: var(--ring); color: var(--muted); font-family: var(--font-ui); font-size: 18px; font-weight: 500; }
+.pick.right { background: var(--good-soft); box-shadow: 0 0 0 1.5px var(--good); }
+.pick.wrong { background: var(--bad-soft); box-shadow: 0 0 0 1.5px var(--bad); }
+.pick.shown { background: var(--surface); box-shadow: var(--ring); }
+.alts { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; max-width: 150px; }
+.alt { font-family: var(--font-han); font-size: 18px; width: 32px; height: 32px; border: 0; border-radius: 8px; background: var(--surface); box-shadow: var(--ring); display: grid; place-items: center; padding: 0; transition: transform 160ms var(--ease-out); }
+.alt:active { transform: scale(0.97); }
+.cellctl { display: flex; gap: 6px; }
+.mini { border: 0; background: none; font-size: 12px; color: var(--muted); padding: 4px 9px; border-radius: 6px; box-shadow: var(--ring); }
+.locked .cellctl { display: none; }
+.locked .cands { min-height: 0; }
+.locked .wstatus { display: none; }
+.wactions { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.wactions .idk { margin: 0; }
+.nextrow { display: flex; justify-content: center; margin-top: 14px; }
+.wgrid .tz { transition: box-shadow 220ms ease, border-color 220ms ease; }
+.wcol.good .tz { border-color: var(--good); box-shadow: 0 0 0 2px var(--good), 0 0 26px 4px color-mix(in oklab, var(--good) 45%, transparent); }
+.wcol.bad .tz { border-color: var(--bad); box-shadow: 0 0 0 2px var(--bad), 0 0 26px 4px color-mix(in oklab, var(--bad) 40%, transparent); }
+.wgrid.shake, .wcol.shake { animation: shake 420ms var(--ease-in-out); }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 15% { transform: translateX(-7px); } 30% { transform: translateX(6px); } 45% { transform: translateX(-5px); } 60% { transform: translateX(4px); } 75% { transform: translateX(-2px); } }
+.verdict { text-align: center; font-size: clamp(30px, 7vw, 38px); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; margin-top: 6px; animation: verdict-in 280ms var(--ease-out) both; }
+.verdict.good { color: var(--good); }
+.wanswer { display: grid; justify-items: center; gap: 4px; margin-top: 10px; text-align: center; animation: verdict-in 280ms var(--ease-out) 60ms both; }
+.wanswer .wrote { font-size: 16px; color: var(--muted); }
+.wanswer .wrote .han { font-size: 22px; color: var(--bad); font-weight: 600; margin-left: 4px; }
+.wanswer .ans { display: flex; align-items: baseline; justify-content: center; flex-wrap: wrap; gap: 4px 12px; }
+.wanswer .lbl { font-size: 16px; color: var(--muted); }
+.wanswer .ans .han { font-size: 34px; font-weight: 700; letter-spacing: .04em; color: var(--ink); }
+.wanswer .ans .py { font-size: 20px; color: var(--accent); }
+.wanswer .def { font-size: 17px; color: var(--ink); max-width: 40ch; text-wrap: balance; }
+.verdict.bad { color: var(--bad); }
+.verdict.part { color: var(--c-write); }
+@keyframes verdict-in { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: none; } }
+.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 50; }
+.wstatus { text-align: center; color: var(--muted); font-size: 13px; min-height: 20px; }
+.idk { display: block; margin: 0; background: transparent; border: 1.5px dashed var(--line); border-radius: 12px; padding: 10px 22px; color: var(--muted); font-weight: 500; transition: transform 160ms var(--ease-out), color 150ms ease, border-color 150ms ease; }
+.idk:not([disabled]):active { transform: scale(0.97); }
+.loadnote { text-align: center; color: var(--muted); padding: 40px 0; }
+
+/* ---------- sound check + section cards ---------- */
+.panel { display: grid; gap: 16px; max-width: 520px; }
+.panel h1 { font-size: clamp(26px, 5vw, 34px); line-height: 1.1; letter-spacing: -.02em; margin: 0; text-wrap: balance; }
+.panel p { margin: 0; color: var(--muted); }
+.voice-line { font-size: 14px; color: var(--muted); }
+.voice-line b { color: var(--ink); font-weight: 600; }
+.choice { background: var(--surface); border-radius: 12px; padding: 14px 16px; box-shadow: var(--ring), var(--shadow-sm); display: grid; gap: 10px; }
+.choice .row { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn.small[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.btn.small.ghost[aria-pressed="true"] { box-shadow: 0 0 0 1.5px var(--accent); background: var(--accent-soft); color: var(--ink); }
+.panel .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.warn { color: var(--bad); font-size: 14px; }
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+
+/* ---------- combined results ---------- */
+.skills { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 8px 0 14px; }
+@media (max-width: 560px) { .skills { grid-template-columns: 1fr; } }
+.skill { background: var(--surface); border-radius: 12px; padding: 14px 16px; box-shadow: var(--ring), var(--shadow-sm); min-width: 0; }
+.skill .nm { display: flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; color: var(--muted); }
+.skill .nm i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.skill .v { font-family: var(--font-mono); font-size: 32px; font-weight: 500; letter-spacing: -.03em; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.skill .rg { color: var(--muted); font-size: 13px; }
+.gap { font-size: 18px; font-weight: 600; letter-spacing: -.01em; max-width: 60ch; }
+.bcol .fills { display: flex; align-items: flex-end; gap: 2px; width: 100%; max-width: 84px; height: 100%; }
+.bcol .fills .fill { max-width: none; flex: 1; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); margin-top: 12px; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; }
+.rv .sec { display: block; font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
+@media (hover: hover) and (pointer: fine) {
+  .play:hover { background: var(--accent-soft); }
+  .say:hover { background: var(--accent-soft); }
+  .linkish:hover { color: var(--ink); }
+  .idk:not([disabled]):hover { border-color: var(--muted); color: var(--ink); }
+  .alt:hover, .mini:hover { background: var(--accent-soft); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .play:active, .idk:not([disabled]):active { transform: none; }
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><span class="han" data-zh-s="词汇量" data-zh-t="詞彙量">词汇量</span><small>Vocabulary test</small></div>
+    <div class="seg" id="seg" role="group" aria-label="Character set" data-active="s">
+      <button id="scr-s" data-s="s" aria-pressed="true">简体</button>
+      <button id="scr-t" data-s="t" aria-pressed="false">繁體</button>
+      <div class="seg-active" aria-hidden="true"><span>简体</span><span>繁體</span></div>
+    </div>
+  </header>
+
+  <main id="view-intro" class="intro view">
+    <div class="hero">
+      <div class="tz" aria-hidden="true"><div class="cell"><span data-zh-s="词" data-zh-t="詞">词</span></div><div class="cell"><span data-zh-s="汇" data-zh-t="彙">汇</span></div></div>
+      <div>
+        <h1 id="hero-h1">How many Chinese words can you read?</h1>
+        <p id="hero-p">A multiple-choice test that samples words across the frequency range and turns your answers into an estimate of your reading vocabulary.</p>
+      </div>
+    </div>
+    <div class="choose">
+      <span class="label" id="test-label">Test</span>
+      <div class="testrow" role="radiogroup" aria-labelledby="test-label">
+        <button class="len test-card" role="radio" data-test="read" aria-checked="true"><span class="ico" lang="zh" data-zh-s="读" data-zh-t="讀">读</span><b>Reading</b><span>Words you recognize in print</span><span class="why"></span></button>
+        <button class="len test-card" role="radio" data-test="listen" aria-checked="false"><span class="ico" lang="zh" data-zh-s="听" data-zh-t="聽">听</span><b>Listening</b><span>Words you understand by ear</span><span class="why"></span></button>
+        <button class="len test-card" role="radio" data-test="write" aria-checked="false"><span class="ico" lang="zh" data-zh-s="写" data-zh-t="寫">写</span><b>Writing</b><span>Words you can write from memory</span><span class="why"></span></button>
+        <button class="len test-card" role="radio" data-test="combo" aria-checked="false"><span class="ico" lang="zh">全</span><b>Combined</b><span>All three, side by side</span><span class="why"></span></button>
+      </div>
+    </div>
+    <div class="lengths">
+      <span class="label" id="len-label">Test length</span>
+      <div class="lenrow" role="radiogroup" aria-labelledby="len-label">
+        <button class="len" role="radio" data-len="short" aria-checked="false"><b>Short</b><span class="n" id="len-n-short"></span><span id="len-d-short"></span></button>
+        <button class="len" role="radio" data-len="medium" aria-checked="true"><b>Medium</b><span class="n" id="len-n-medium"></span><span id="len-d-medium"></span></button>
+        <button class="len" role="radio" data-len="long" aria-checked="false"><b>Long</b><span class="n" id="len-n-long"></span><span id="len-d-long"></span></button>
+      </div>
+    </div>
+    <ul class="how" id="how"></ul>
+    <div class="startrow">
+      <button class="btn" id="start">Start the test</button>
+    </div>
+  </main>
+
+  <main id="view-sound" class="view" hidden>
+    <div class="panel">
+      <span class="eyebrow">Before you start</span>
+      <h1>Sound check</h1>
+      <p>Turn your sound on and play the sample. On a phone, check that silent mode is off.</p>
+      <div class="choice" id="yue-choice" hidden>
+        <b>A Cantonese voice is available.</b>
+        <span class="voice-line">Take the listening part in Cantonese? You'll hear standard written Chinese words read aloud in Cantonese, not colloquial spoken Cantonese.</span>
+        <div class="row" role="group" aria-label="Listening language">
+          <button class="btn small ghost" id="v-cmn" aria-pressed="true">Keep Mandarin</button>
+          <button class="btn small ghost" id="v-yue" aria-pressed="false">Use Cantonese</button>
+        </div>
+      </div>
+      <div class="row"><button class="btn ghost" id="snd-play">Play sample</button><span class="voice-line" id="voice-line"></span></div>
+      <p class="voice-line" id="snd-note" hidden></p>
+      <div class="row"><button class="btn" id="snd-ok" disabled>I heard it clearly, start</button><button class="btn small ghost" id="snd-back">Back</button></div>
+    </div>
+  </main>
+
+  <main id="view-section" class="view" hidden>
+    <div class="panel">
+      <span class="eyebrow" id="sec-eyebrow">Section 2 of 3</span>
+      <h1 id="sec-title">Listening</h1>
+      <p id="sec-text"></p>
+      <div class="row"><button class="btn" id="sec-go">Continue</button><button class="exit" id="sec-exit">Exit quiz</button></div>
+    </div>
+  </main>
+
+  <main id="view-test" class="view" hidden>
+    <div class="testbar">
+      <button class="exit" id="exit-btn" aria-expanded="false" aria-controls="exit-confirm">Exit quiz</button>
+      <span class="count mono" id="q-count">1 / 60</span>
+    </div>
+    <div class="exit-confirm" id="exit-confirm" hidden>
+      <span>Leave this test? Your answers so far won't be scored.</span>
+      <span class="exit-actions"><button class="btn small" id="exit-yes">Leave test</button><button class="btn small ghost" id="exit-no">Keep going</button></span>
+    </div>
+    <div class="meta"><span class="label" id="q-type">What does this word mean?</span></div>
+    <div class="bar"><i id="q-bar"></i></div>
+    <div class="prompt" id="q-prompt"></div>
+    <div class="opts" id="q-opts"></div>
+    <div class="subrow"><button class="linkish" id="q-bad" hidden>Audio sounded wrong? Skip this one</button></div>
+    <div class="feedback" id="q-fb" aria-live="polite"></div>
+    <div class="nextrow" id="q-next-row" hidden><button class="btn" id="q-next">Next question <span aria-hidden="true">→</span></button></div>
+  </main>
+
+  <main id="view-result" class="view" hidden>
+    <div class="result-head reveal" id="r-single">
+      <span class="label" id="r-label">Estimated reading vocabulary</span>
+      <div class="big" id="r-num">0</div>
+      <div class="range" id="r-range"></div>
+      <div class="level" id="r-level"></div>
+      <div class="range" id="r-len"></div>
+    </div>
+    <div class="reveal" id="r-combo" hidden>
+      <span class="label">Your vocabulary profile</span>
+      <div class="skills" id="r-skills"></div>
+      <p class="gap" id="r-gap"></p>
+      <p class="range" id="r-combo-note"></p>
+    </div>
+
+    <section class="card scale reveal">
+      <h2>Where that sits</h2>
+      <p class="sub" id="r-scale-sub">Your estimate and its likely range, against the cumulative word lists of the HSK 3.0 levels (log scale).</p>
+      <svg id="r-scale" viewBox="0 0 640 96" role="img" aria-label="Estimate on a log scale against HSK levels"></svg>
+    </section>
+
+    <section class="card reveal">
+      <h2>Words known by how common they are</h2>
+      <p class="sub" id="r-bands-sub">Estimated share of each group you know, fitted to all your answers. Words are grouped from the 2,000 most common (left) to rarer ones (right). Hover or tap a bar to see how many you got right there.</p>
+      <div class="bands" id="r-bands"></div>
+      <div class="bandlabels" id="r-blabels"></div>
+      <div class="legend" id="r-legend" hidden></div>
+    </section>
+
+    <section class="card reveal">
+      <h2>Your answers</h2>
+      <div class="stats" id="r-stats"></div>
+      <div class="tabs" id="r-sec-tabs" role="group" aria-label="Section" hidden></div>
+      <div class="tabs" id="r-filter-tabs" role="group" aria-label="Filter answers">
+        <button data-f="miss" aria-pressed="true">Missed</button>
+        <button data-f="right" aria-pressed="false">Correct</button>
+        <button data-f="all" aria-pressed="false">All</button>
+      </div>
+      <div class="review" id="r-review"></div>
+    </section>
+
+    <div class="actions reveal">
+      <button class="btn" id="again">Take it again</button>
+      <button class="btn ghost" id="home">Choose another test</button>
+    </div>
+
+    <section class="note reveal">
+      <p><b>How the estimate works.</b> About 44,000 dictionary words (CC-CEDICT entries, excluding names) are ranked by how often they appear in written and spoken Chinese (wordfreq corpus) and cut into frequency bands. A few opening questions spread across the bands; after that, each question is aimed where you're about as likely to know a word as not, which is where an answer tells the most. All your answers are fitted to a curve of how your knowledge falls off with rarity. <span id="r-note-mode"></span> The estimate is the number of words under that curve, and the likely range covers 90% of the curves that fit your answers.</p>
+      <p><b>Limits.</b> Frequency rank is a rough proxy for difficulty, single characters are counted but not quizzed, and a retake will usually land within the range shown. Words beyond rank 40,000 are not counted, so very advanced learners will be underestimated. HSK comparisons use word-list size only.</p>
+    </section>
+  </main>
+  <footer class="credits" id="credits">
+    <p><b>Credits.</b> Words and definitions: <a href="https://cc-cedict.org/" target="_blank" rel="noopener">CC-CEDICT</a> (CC BY-SA 4.0). Word frequencies: <a href="https://github.com/rspeer/wordfreq" target="_blank" rel="noopener">wordfreq</a> by Robyn Speer (data CC BY-SA 4.0). Handwriting reference shapes: <a href="https://github.com/skishore/makemeahanzi" target="_blank" rel="noopener">Make Me a Hanzi</a> (Arphic Public License). Cantonese readings: <a href="https://github.com/CanCLID/ToJyutping" target="_blank" rel="noopener">ToJyutping</a> (BSD 2-Clause). The word list on this page is adapted from these sources and shared under CC BY-SA 4.0.</p>
+  </footer>
+</div>
+
+<script type="module">
+  // Animated digits for the result (NumberFlow). If it can't load, the plain number shows instead.
+  import("https://cdn.jsdelivr.net/npm/number-flow@0.6.2/+esm").catch(function () {});
+</script>
+
+<script type="application/json" id="bank">__BANK__</script>
+<script type="text/plain" id="glyph-data">__GLYPHS__</script>
+<script>
+(function () {
+  "use strict";
+  var bankText = document.getElementById("bank").textContent.trim();
+  if (bankText.charAt(0) !== "{") {
+    // This is the unbuilt template: the word list hasn't been inserted yet.
+    document.querySelector(".wrap").innerHTML = '<main class="panel" style="padding-block:48px"><span class="eyebrow">Build template</span><h1>The word list isn\'t in this file yet</h1>' +
+      '<p>This is the template the test is built from. Open <b>chinese-vocab-test.html</b> instead, or build it with <code>python3 assemble.py template.html bank2.json glyphs.json chinese-vocab-test.html</code>.</p></main>';
+    return;
+  }
+  var BANK = JSON.parse(bankText);
+  var BANDS = BANK.bands;
+  var NB = BANDS.length;
+  var SIZES = BANDS.map(function (b) { return b.hi - b.lo + 1; });
+  var MAXRANK = BANDS[NB - 1].hi;
+  var HSK = [["1", 500], ["2", 1272], ["3", 2245], ["4", 3245], ["5", 4316], ["6", 5456], ["7–9", 11092]];
+  var STOPW = {};
+  "to a an the of one oneself sb sth someone something especially in on at for and or with by as be is from up out into etc very not no it its that this".split(" ").forEach(function (w) { STOPW[w] = 1; });
+
+  function cw(d) {
+    var out = {}, m = d.toLowerCase().match(/[a-z]+/g) || [];
+    m.forEach(function (w) {
+      if (STOPW[w] || w.length < 3) return;
+      var sufs = ["ing", "ed", "es", "s", "ly"];
+      for (var i = 0; i < sufs.length; i++) {
+        if (w.slice(-sufs[i].length) === sufs[i] && w.length - sufs[i].length >= 3) { w = w.slice(0, -sufs[i].length); break; }
+      }
+      out[w] = 1;
+    });
+    return out;
+  }
+  function overlaps(a, b) { for (var k in a) if (b[k]) return true; return false; }
+  function shareChar(a, b) { for (var i = 0; i < a.length; i++) if (b.indexOf(a[i]) >= 0) return true; return false; }
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function fmt(n) { return Math.round(n).toLocaleString("en-US"); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function $(id) { return document.getElementById(id); }
+  function cssVar(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+  BANDS.forEach(function (b, bi) { b.words.forEach(function (w) { w.c = cw(w.d); w.b = bi; }); });
+  var IDIOMS = BANK.idioms.map(function (x) { return { s: x.s, t: x.t, d: x.d, c: cw(x.d), i: 1 }; });
+  BANDS.forEach(function (b) { b.words.forEach(function (w) { if (w.i && w.s.length >= 4) IDIOMS.push(w); }); });
+
+  var SPEAKER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" stroke="none"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>';
+
+  // ---------- modes ----------
+  var MODES = {
+    read: { key: "read", name: "Reading", short: "Read", noun: "reader", adj: "reading", guess: 0.25, slip: 0.04, n: { short: 30, medium: 60, long: 100 }, unit: "questions", label: "Estimated reading vocabulary", color: "--c-read" },
+    listen: { key: "listen", name: "Listening", short: "Hear", noun: "listener", adj: "listening", guess: 0.25, slip: 0.05, n: { short: 25, medium: 50, long: 80 }, unit: "questions", label: "Estimated listening vocabulary", color: "--c-hear" },
+    write: { key: "write", name: "Writing", short: "Write", noun: "writer", adj: "writing", guess: 0, slip: 0.06, n: { short: 12, medium: 25, long: 40 }, unit: "words", label: "Words you can write", color: "--c-write" }
+  };
+  var COMBO = { short: { read: 10, listen: 10, write: 5 }, medium: { read: 20, listen: 20, write: 10 }, long: { read: 35, listen: 30, write: 15 } };
+  var TIMES = { short: "About 8–10 minutes.", medium: "About 15–20 minutes.", long: "About 25–30 minutes." };
+  var COMBO_TIMES = { short: "About 10 minutes.", medium: "About 20 minutes.", long: "About 30 minutes." };
+  var LEN_NOTES = { short: "A quick read on your level.", medium: "A solid estimate.", long: "The tightest range." };
+  var P1PER = { short: 1, medium: 2, long: 2 };
+  var SPARSE = [0, 2, 4, 6, 8, 10].filter(function (b) { return b < NB; });
+  var ALLB = BANDS.map(function (_, b) { return b; });
+
+  var COPY = {
+    read: {
+      h1: "How many Chinese words can you read?",
+      p: "A multiple-choice test that samples words across the frequency range and turns your answers into an estimate of your reading vocabulary.",
+      how: ["You'll see a word and pick its meaning, see a meaning and pick the word, or read a set phrase or idiom (<span data-zh-s='成语' data-zh-t='成語'>成语</span>) and pick what it means.",
+        "Pinyin stays hidden, so the test measures reading rather than listening.",
+        "Not sure? Take your best guess."],
+      keys: 'Keys: <span class="kbd">1</span>–<span class="kbd">4</span> to answer, <span class="kbd">Esc</span> to exit'
+    },
+    listen: {
+      h1: "How many Chinese words can you understand by ear?",
+      p: "You hear a word or phrase and pick its meaning. Your answers turn into an estimate of your listening vocabulary.",
+      how: ["Each word plays as it appears. Replay it with the button or the R key; the second replay is slower. After answering, press <b>Next question</b> to go on.",
+        "No characters or pinyin appear until you answer.",
+        "Not sure? Take your best guess.",
+        "If a word sounds garbled, choose <b>Audio sounded wrong</b> to skip it without it counting.",
+        "<span data-only='t'>With 繁體 you'll hear a Taiwan Mandarin voice, or Cantonese if your device has one and you choose it.</span><span data-only='s'>With 简体 you'll hear a mainland Mandarin voice. Switch to 繁體 for a Taiwan voice or Cantonese.</span>"],
+      keys: 'Keys: <span class="kbd">1</span>–<span class="kbd">4</span> to answer, <span class="kbd">R</span> to replay, <span class="kbd">Esc</span> to exit'
+    },
+    write: {
+      h1: "How many Chinese words can you write?",
+      p: "You see a meaning and its pinyin, then write the word by hand. Your answers turn into an estimate of how many words you can write.",
+      how: ["Write each character in its own square with a mouse, trackpad, finger or stylus. Stroke order doesn't matter.",
+        "As you write, the site shows the character it reads, plus a few close alternatives. Tap one if it misread you.",
+        "Press <b>Confirm</b> to lock in your answer, then <b>Next question</b> when you're ready. <b>Undo</b> and <b>Clear</b> fix mistakes before you confirm. Simplified and traditional forms both count.",
+        "Only know part of a word? Confirm with the characters you can write. Each right character earns partial credit.",
+        "Can't write a word? Press <b>Don't know</b>. There's no guessing in writing, so skipping costs nothing extra."],
+      keys: '<span class="kbd">Enter</span> to confirm and go on, <span class="kbd">Esc</span> to exit'
+    },
+    combo: {
+      h1: "How many Chinese words can you read, hear and write?",
+      p: "Three short sections in one sitting: reading, then listening, then writing. You get all three estimates side by side.",
+      how: ["Reading: pick meanings for words on screen.",
+        "Listening: hear a word and pick its meaning. A sound check runs before you begin.",
+        "Writing: write each word by hand, in any stroke order, and confirm what the site reads.",
+        "Exiting at any point discards the whole test."],
+      keys: 'Keys: <span class="kbd">1</span>–<span class="kbd">4</span> to answer, <span class="kbd">R</span> to replay, <span class="kbd">Esc</span> to exit'
+    }
+  };
+
+  // ---------- script toggle ----------
+  var script = "s";
+  try { var saved = localStorage.getItem("cvt-script"); if (saved === "t" || saved === "s") script = saved; } catch (e) {}
+  function W(x) { return script === "t" ? x.t : x.s; }
+  function applyScriptText() {
+    document.querySelectorAll("[data-zh-s]").forEach(function (n) { n.textContent = n.getAttribute(script === "t" ? "data-zh-t" : "data-zh-s"); });
+    document.querySelectorAll("[data-only]").forEach(function (n) { n.hidden = n.getAttribute("data-only") !== script; });
+  }
+  function setScript(s) {
+    script = s;
+    document.documentElement.setAttribute("data-script", s);
+    var seg = $("seg");
+    seg.setAttribute("data-active", s);
+    if (!seg.classList.contains("ready")) requestAnimationFrame(function () { requestAnimationFrame(function () { seg.classList.add("ready"); }); });
+    $("scr-s").setAttribute("aria-pressed", s === "s");
+    $("scr-t").setAttribute("aria-pressed", s === "t");
+    try { localStorage.setItem("cvt-script", s); } catch (e) {}
+    applyScriptText();
+    if (state && state.cur && !views.test.hidden && state.mode.key === "read") renderQ(true);
+  }
+  document.querySelectorAll(".seg button").forEach(function (b) { b.addEventListener("click", function () { setScript(b.getAttribute("data-s")); }); });
+
+  var views = { intro: $("view-intro"), sound: $("view-sound"), section: $("view-section"), test: $("view-test"), result: $("view-result") };
+  function show(v) {
+    for (var k in views) views[k].hidden = k !== v;
+    // the script is fixed once a listening or writing test starts; results are final
+    $("seg").hidden = !(v === "intro" || (v === "test" && session && session.test === "read"));
+    $("credits").hidden = !(v === "intro" || v === "result");
+    closeExit();
+    window.scrollTo(0, 0);
+  }
+
+  // ---------- speech ----------
+  var SPEECH = { ok: !!(window.speechSynthesis && window.SpeechSynthesisUtterance), voices: [], settled: false };
+  function voiceScore(v) { var n = v.name.toLowerCase(); return (/premium|enhanced|natural|neural/.test(n) ? 4 : 0) + (/google|microsoft/.test(n) ? 2 : 0); }
+  function findVoice(re) {
+    var c = SPEECH.voices.filter(function (v) { return re.test((v.lang || "").replace("_", "-")); });
+    c.sort(function (a, b) { return voiceScore(b) - voiceScore(a); });
+    return c[0] || null;
+  }
+  function voiceCN() { return findVoice(/^(zh-CN|zh-Hans|cmn-CN|cmn-Hans|zh$|cmn$)/i); }
+  function voiceTW() { return findVoice(/^(zh-TW|zh-Hant-TW|cmn-TW|cmn-Hant)/i); }
+  function voiceHK() { return findVoice(/^(zh-HK|yue)/i); }
+  function mandarinFor(s) { return s === "t" ? (voiceTW() || voiceCN()) : (voiceCN() || voiceTW()); }
+  function hasMandarin() { return !!(voiceCN() || voiceTW()); }
+  function loadVoices() {
+    if (!SPEECH.ok) return;
+    SPEECH.voices = speechSynthesis.getVoices() || [];
+    if (SPEECH.voices.length) SPEECH.settled = true;
+    refreshAvailability();
+  }
+  if (SPEECH.ok) {
+    loadVoices();
+    if (speechSynthesis.addEventListener) speechSynthesis.addEventListener("voiceschanged", loadVoices);
+    else speechSynthesis.onvoiceschanged = loadVoices;
+    setTimeout(function () { SPEECH.settled = true; refreshAvailability(); }, 2500);
+  }
+  function voiceLabel(v, kind) {
+    if (!v) return "";
+    var place = kind === "yue" ? "Cantonese" : /TW|Hant/i.test(v.lang) ? "Taiwan Mandarin" : "Mainland Mandarin";
+    return place + " · " + v.name.replace(/\s*\(.*\)\s*$/, "");
+  }
+  var speakTimer = null;
+  function speak(text, slow, btn) {
+    if (!SPEECH.ok || !session || !session.voice) return;
+    clearTimeout(speakTimer);
+    speechSynthesis.cancel();
+    speakTimer = setTimeout(function () {
+      var u = new SpeechSynthesisUtterance(text);
+      u.voice = session.voice; u.lang = session.voice.lang; u.rate = slow ? 0.6 : 0.9;
+      if (btn) {
+        u.onstart = function () { btn.classList.add("speaking"); };
+        u.onend = u.onerror = function () { btn.classList.remove("speaking"); };
+      }
+      speechSynthesis.speak(u);
+    }, 40);
+  }
+  function stopSpeech() { clearTimeout(speakTimer); if (SPEECH.ok) speechSynthesis.cancel(); }
+  function spokenText(T) { return session && session.voiceKind === "yue" ? T.t : (session && session.voice && /TW|Hant/i.test(session.voice.lang) ? T.t : T.s); }
+  function readingOf(T) { return session && session.voiceKind === "yue" && T.jp ? T.jp : T.p; }
+
+  // ---------- test + length pickers ----------
+  var testKey = "read", lengthKey = "medium";
+  try {
+    var savedLen = localStorage.getItem("cvt-length"); if (MODES.read.n[savedLen]) lengthKey = savedLen;
+    var savedTest = localStorage.getItem("cvt-test"); if (COPY[savedTest]) testKey = savedTest;
+  } catch (e) {}
+  function needsVoice(t) { return t === "listen" || t === "combo"; }
+  function testAvailable(t) { return !needsVoice(t) || (SPEECH.ok && hasMandarin()); }
+  function refreshAvailability() {
+    document.querySelectorAll(".test-card").forEach(function (b) {
+      var t = b.getAttribute("data-test"), why = "";
+      if (needsVoice(t) && !testAvailable(t)) why = !SPEECH.ok ? "This browser can't play speech" : SPEECH.settled ? "No Mandarin voice in this browser" : "Checking voices…";
+      b.setAttribute("aria-disabled", why ? "true" : "false");
+      b.querySelector(".why").textContent = why;
+    });
+    var bad = !testAvailable(testKey);
+    $("start").disabled = bad;
+    $("start").title = bad ? "Pick a test this browser supports" : "";
+  }
+  function setTest(t) {
+    testKey = t;
+    document.querySelectorAll(".test-card").forEach(function (b) { var on = b.getAttribute("data-test") === t; b.setAttribute("aria-checked", on); b.tabIndex = on ? 0 : -1; });
+    var c = COPY[t];
+    $("hero-h1").textContent = c.h1; $("hero-p").textContent = c.p;
+    $("how").innerHTML = c.how.map(function (h) { return "<li><span>" + h + "</span></li>"; }).join("");
+    ["short", "medium", "long"].forEach(function (k) {
+      if (t === "combo") {
+        var cb = COMBO[k];
+        $("len-n-" + k).textContent = (cb.read + cb.listen + cb.write) + " questions";
+        $("len-d-" + k).textContent = COMBO_TIMES[k] + " " + cb.read + " reading, " + cb.listen + " listening, " + cb.write + " writing.";
+      } else {
+        $("len-n-" + k).textContent = MODES[t].n[k] + " " + MODES[t].unit;
+        $("len-d-" + k).textContent = TIMES[k] + " " + LEN_NOTES[k];
+      }
+    });
+    applyScriptText();
+    refreshAvailability();
+    try { localStorage.setItem("cvt-test", t); } catch (e) {}
+  }
+  function setLength(k) {
+    lengthKey = k;
+    document.querySelectorAll(".lenrow .len").forEach(function (b) { var on = b.getAttribute("data-len") === k; b.setAttribute("aria-checked", on); b.tabIndex = on ? 0 : -1; });
+    try { localStorage.setItem("cvt-length", k); } catch (e) {}
+  }
+  function radioKeys(sel, attr, getCur, set) {
+    document.querySelectorAll(sel).forEach(function (b) {
+      b.addEventListener("click", function () { if (b.getAttribute("aria-disabled") === "true") return; set(b.getAttribute(attr)); });
+      b.addEventListener("keydown", function (e) {
+        var all = Array.prototype.slice.call(document.querySelectorAll(sel)).filter(function (x) { return x.getAttribute("aria-disabled") !== "true"; });
+        var keys = all.map(function (x) { return x.getAttribute(attr); }), i = keys.indexOf(getCur());
+        if (e.key === "ArrowRight" || e.key === "ArrowDown") i = Math.min(keys.length - 1, i + 1);
+        else if (e.key === "ArrowLeft" || e.key === "ArrowUp") i = Math.max(0, i - 1);
+        else return;
+        e.preventDefault(); set(keys[i]); all[i].focus();
+      });
+    });
+  }
+  radioKeys(".test-card", "data-test", function () { return testKey; }, setTest);
+  radioKeys(".lenrow .len", "data-len", function () { return lengthKey; }, setLength);
+
+  // ---------- knowledge model ----------
+  // P(know word of rank r) = 1 / (1 + (r / V)^k). V is the rank where you know half the words, k how sharply
+  // knowledge falls off. In multiple choice a guess is right 1 time in 4; writing has no guessing. A known word
+  // is occasionally missed by a slip. The posterior over (V, k) on a grid pools every answer.
+  var GV = [], GK = [], GN = [];
+  (function buildGrid() {
+    var lo = Math.log(20), hi = Math.log(90000), nv = 90;
+    for (var i = 0; i < nv; i++) GV.push(Math.exp(lo + (hi - lo) * i / (nv - 1)));
+    for (var k = 0.8; k <= 4.01; k += 0.2) GK.push(+k.toFixed(2));
+    var pts = [], m = 400;
+    for (i = 0; i <= m; i++) pts.push(Math.exp(Math.log(0.5) + (Math.log(MAXRANK + 0.5) - Math.log(0.5)) * i / m));
+    GV.forEach(function (V, a) {
+      GN[a] = GK.map(function (K) {
+        var sum = 0;
+        for (var j = 1; j < pts.length; j++) {
+          var f0 = 1 / (1 + Math.pow(pts[j - 1] / V, K)), f1 = 1 / (1 + Math.pow(pts[j] / V, K));
+          sum += (f0 + f1) / 2 * (pts[j] - pts[j - 1]);
+        }
+        return sum;
+      });
+    });
+  })();
+  function pKnow(r, V, K) { return 1 / (1 + Math.pow(r / V, K)); }
+  function posterior(hist, cfg) {
+    var post = [], max = -Infinity, g = cfg.guess, sl = cfg.slip, pr = cfg.prior;
+    for (var a = 0; a < GV.length; a++) for (var b = 0; b < GK.length; b++) {
+      var ll = -Math.pow((GK[b] - 2) / 0.9, 2) / 2;
+      if (pr) ll -= Math.pow((Math.log(GV[a]) - pr.lv) / pr.sd, 2) / 2;
+      for (var i = 0; i < hist.length; i++) {
+        var p = pKnow(hist[i].T.r, GV[a], GK[b]), pc = p * (1 - sl) + (1 - p) * g;
+        var cr = hist[i].credit;
+        ll += cr * Math.log(pc) + (1 - cr) * Math.log(1 - pc);
+      }
+      post.push({ a: a, b: b, ll: ll });
+      if (ll > max) max = ll;
+    }
+    var tot = 0;
+    post.forEach(function (x) { x.w = Math.exp(x.ll - max); tot += x.w; });
+    post.forEach(function (x) { x.w /= tot; });
+    return post;
+  }
+  function pointEstimate(post) {
+    var lv = 0, k = 0;
+    post.forEach(function (x) { lv += x.w * Math.log(GV[x.a]); k += x.w * GK[x.b]; });
+    return { V: Math.exp(lv), K: k };
+  }
+  function cfgOf(st, withPrior) { return { guess: st.mode.guess, slip: st.mode.slip, prior: withPrior ? st.prior : null }; }
+
+  // ---------- section state ----------
+  var session = null, state = null;
+  function eligible(st, w) {
+    if (st.mode.key === "listen") return st.voiceKind === "yue" ? !w.xc : !w.xm;
+    if (st.mode.key === "write") return script === "t" ? !!w.wt : !!w.ws;
+    return true;
+  }
+  function newState(modeKey, n, opts) {
+    opts = opts || {};
+    var mode = MODES[modeKey];
+    var sparse = modeKey === "write" || opts.sparse;
+    var st = {
+      mode: mode, total: n, prior: opts.prior || null, voiceKind: opts.voiceKind || "cmn",
+      stats: BANDS.map(function () { return { n: 0, r: 0, w: 0 }; }),
+      used: {}, hist: [], cur: null, nWord: 0, voided: 0,
+      phase: opts.prior ? 2 : 1, p1list: sparse ? SPARSE : ALLB, p1idx: 0, p1count: 0,
+      p1per: sparse ? 1 : P1PER[opts.lenKey || "medium"]
+    };
+    return st;
+  }
+  function score(st, b) {
+    var s = st.stats[b], g = st.mode.guess;
+    return s.n ? Math.max(0, Math.min(1, (s.r - s.w * g / (1 - g)) / s.n)) : 0;
+  }
+  function hasWords(st, b) { return BANDS[b].words.some(function (w) { return !st.used[w.s] && eligible(st, w); }); }
+  function chooseBand(st) {
+    if (st.phase === 1) return st.p1list[st.p1idx];
+    // aim each question where you're likely, but not certain, to know the word
+    var pe = pointEstimate(posterior(st.hist, cfgOf(st, true)));
+    var t = 0.2 + Math.random() * 0.6;
+    var r = pe.V * Math.pow((1 - t) / t, 1 / pe.K);
+    var target = 0;
+    for (var b = 0; b < NB; b++) if (r >= BANDS[b].lo) target = b;
+    var order = ALLB.slice().sort(function (x, y) { return Math.abs(x - target) - Math.abs(y - target); });
+    for (var i = 0; i < order.length; i++) if (hasWords(st, order[i])) return order[i];
+    return target;
+  }
+
+  function candidates(T, fmtType) {
+    var lo = Math.max(0, T.b - 1), hi = Math.min(NB - 1, T.b + 1), pool = [];
+    if (fmtType === "phrase") pool = IDIOMS.slice();
+    else for (var b = lo; b <= hi; b++) pool = pool.concat(BANDS[b].words);
+    return pool.filter(function (x) { return x.s !== T.s && x.d !== T.d; });
+  }
+  function pickDistractors(T, fmtType, extraOk) {
+    var pool = candidates(T, fmtType);
+    var tries = [
+      function (x) { return x.v === T.v && (fmtType !== "word" || x.s.length === T.s.length); },
+      function (x) { return fmtType !== "word" || x.s.length === T.s.length; },
+      function () { return true; }
+    ];
+    for (var t = 0; t < tries.length; t++) {
+      var c = pool.filter(tries[t]).filter(function (x) {
+        if (overlaps(x.c, T.c)) return false;
+        if (extraOk && !extraOk(x)) return false;
+        if (fmtType === "word" && (shareChar(x.s, T.s) || shareChar(x.t, T.t))) return false;
+        return true;
+      });
+      if (fmtType !== "word") {
+        // prefer definitions of similar length so length isn't a clue
+        c.sort(function (a, b) { return Math.abs(a.d.length - T.d.length) - Math.abs(b.d.length - T.d.length); });
+        c = c.slice(0, 24);
+      }
+      shuffle(c);
+      var chosen = [];
+      for (var i = 0; i < c.length && chosen.length < 3; i++) {
+        var x = c[i];
+        if (chosen.some(function (y) { return overlaps(x.c, y.c) || y.s === x.s || y.d === x.d || (fmtType === "word" && shareChar(x.s, y.s)); })) continue;
+        chosen.push(x);
+      }
+      if (chosen.length === 3) return chosen;
+    }
+    return null;
+  }
+
+  function nextQuestion(st) {
+    var b = chooseBand(st);
+    var avail = BANDS[b].words.filter(function (w) { return !st.used[w.s] && eligible(st, w); });
+    shuffle(avail);
+    for (var i = 0; i < avail.length; i++) {
+      var T = avail[i], f, ds = null, mk = st.mode.key;
+      if (mk === "write") {
+        st.used[T.s] = 1;
+        return { T: T, b: b, f: "write" };
+      }
+      if (mk === "listen") {
+        f = T.i && T.s.length >= 4 ? "lphrase" : "listen";
+        var yue = st.voiceKind === "yue";
+        // never offer the meaning of a word that sounds the same as the one played
+        ds = pickDistractors(T, f === "lphrase" ? "phrase" : "meaning", function (x) { return yue ? !(x.jp && x.jp === T.jp) : x.pn !== T.pn; });
+      } else {
+        if (T.i && T.s.length >= 4) f = "phrase";
+        else f = (st.nWord < (st.hist.length + 1) * 0.4 && Math.random() < 0.7) ? "word" : "meaning";
+        ds = pickDistractors(T, f);
+        if (!ds && f === "word") { f = "meaning"; ds = pickDistractors(T, f); }
+      }
+      st.used[T.s] = 1;
+      if (!ds) continue;
+      if (f === "word") st.nWord++;
+      var opts = shuffle([T].concat(ds));
+      return { T: T, b: b, f: f, opts: opts, ans: opts.indexOf(T) };
+    }
+    if (st.phase === 1) { if (st.p1idx < st.p1list.length - 1) { st.p1idx++; st.p1count = 0; } else st.phase = 2; }
+    return null;
+  }
+  function firstQuestion(st) {
+    for (var tries = 0; tries < 6; tries++) { var q = nextQuestion(st); if (q) return q; }
+    return null;
+  }
+  function decideNext(st) {
+    if (st.phase === 1) {
+      st.p1count++;
+      if (st.p1count >= st.p1per) {
+        var b = st.p1list[st.p1idx], prev = st.p1idx > 0 ? st.p1list[st.p1idx - 1] : null;
+        var low = function (x) { return score(st, x) <= 0.15; };
+        if ((prev !== null && low(b) && low(prev)) || st.p1idx === st.p1list.length - 1) st.phase = 2;
+        else { st.p1idx++; st.p1count = 0; }
+      }
+    }
+    if (st.hist.length >= st.total) return null;
+    return firstQuestion(st);
+  }
+  // credit: 1 = right, 0 = wrong, in between = partly right (writing only)
+  function record(st, q, res, credit) {
+    if (credit == null) credit = res === "right" ? 1 : 0;
+    q.res = res; q.credit = credit;
+    var s = st.stats[q.b];
+    s.n++; s.r += credit; s.w += 1 - credit;
+    st.hist.push({ T: q.T, b: q.b, f: q.f, res: res, credit: credit, got: q.got || null });
+    return res;
+  }
+  function estimate(st) {
+    var post = posterior(st.hist, cfgOf(st, false));
+    var arr = post.map(function (x) { return { n: GN[x.a][x.b], w: x.w }; }).sort(function (x, y) { return x.n - y.n; });
+    function q(p) { var c = 0; for (var i = 0; i < arr.length; i++) { c += arr[i].w; if (c >= p) return arr[i].n; } return arr[arr.length - 1].n; }
+    var p = BANDS.map(function (bd) {
+      var mids = [], m = 6, v = 0;
+      for (var i = 0; i < m; i++) mids.push(Math.exp(Math.log(bd.lo) + (Math.log(bd.hi) - Math.log(bd.lo)) * (i + 0.5) / m));
+      post.forEach(function (x) {
+        if (x.w < 1e-6) return;
+        var sum = 0;
+        mids.forEach(function (r) { sum += pKnow(r, GV[x.a], GK[x.b]); });
+        v += x.w * sum / m;
+      });
+      return v;
+    });
+    var pLast = 0;
+    post.forEach(function (x) { pLast += x.w * pKnow(MAXRANK, GV[x.a], GK[x.b]); });
+    return { est: q(0.5), lo: q(0.05), hi: q(0.95), p: p, pLast: pLast };
+  }
+
+  // ---------- writing data ----------
+  // ---------- handwriting recognizer ----------
+  // Character templates (Make Me a Hanzi stroke skeletons for ~9,500 simplified and traditional characters)
+  // ship inside the page, gzipped. They are unpacked only when a writing section starts.
+  // Order-free handwriting recognizer: matches drawn strokes to character templates by shape and position,
+  // pairing strokes with the Hungarian algorithm so stroke order and direction don't matter.
+  function makeRecognizer(G) {
+    var K = G.k, chars = Array.from(G.c), counts = G.n, bytes = G.bytes, i, j;
+    var UNMATCHED = 0.2, REV = 0.02;
+    function resample(pts) {
+      var out = new Float32Array(K * 2), seg = [], total = 0, j;
+      if (pts.length === 1) pts = [pts[0], pts[0]];
+      for (j = 0; j < pts.length - 1; j++) { var d = Math.hypot(pts[j + 1][0] - pts[j][0], pts[j + 1][1] - pts[j][1]); seg.push(d); total += d; }
+      var acc = 0, s = 0;
+      for (j = 0; j < K; j++) {
+        var target = total * j / (K - 1);
+        while (s < seg.length - 1 && acc + seg[s] < target) { acc += seg[s]; s++; }
+        var t = seg[s] ? Math.min(1, (target - acc) / seg[s]) : 0, a = pts[s], b = pts[s + 1];
+        out[j * 2] = a[0] + (b[0] - a[0]) * t; out[j * 2 + 1] = a[1] + (b[1] - a[1]) * t;
+      }
+      return out;
+    }
+    function normalize(strokes) {
+      var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      strokes.forEach(function (s) { for (var j = 0; j < K; j++) { var x = s[j * 2], y = s[j * 2 + 1]; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; } });
+      var sc = Math.max(x1 - x0, y1 - y0, 1e-6), cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+      strokes.forEach(function (s) { for (var j = 0; j < K; j++) { s[j * 2] = (s[j * 2] - cx) / sc + 0.5; s[j * 2 + 1] = (s[j * 2 + 1] - cy) / sc + 0.5; } });
+      return strokes;
+    }
+    // templates
+    var T = [], off = 0;
+    for (i = 0; i < chars.length; i++) {
+      var st = [];
+      for (var k = 0; k < counts[i]; k++) {
+        var a = new Float32Array(K * 2);
+        for (j = 0; j < K * 2; j++) a[j] = bytes[off++] / 255;
+        st.push(a);
+      }
+      T.push(normalize(st));
+    }
+    var TG = T.map(grid);
+    function strokeDist(a, b) {
+      var f = 0, r = 0, dx, dy;
+      for (var j = 0; j < K; j++) {
+        dx = a[j * 2] - b[j * 2]; dy = a[j * 2 + 1] - b[j * 2 + 1]; f += Math.sqrt(dx * dx + dy * dy);
+        var q = K - 1 - j;
+        dx = a[j * 2] - b[q * 2]; dy = a[j * 2 + 1] - b[q * 2 + 1]; r += Math.sqrt(dx * dx + dy * dy);
+      }
+      return Math.min(f, r + REV * K) / K;
+    }
+    // order-free shape summary: where the ink sits on a soft (bilinear) GD x GD grid
+    var GD = 5;
+    function grid(strokes) {
+      var g = new Float32Array(GD * GD), tot = 0;
+      strokes.forEach(function (s) { for (var j = 0; j < K; j++) {
+        var fx = Math.min(GD - 1, Math.max(0, s[j * 2] * GD - 0.5)), fy = Math.min(GD - 1, Math.max(0, s[j * 2 + 1] * GD - 0.5));
+        var x0 = Math.floor(fx), y0 = Math.floor(fy), x1 = Math.min(GD - 1, x0 + 1), y1 = Math.min(GD - 1, y0 + 1), ax = fx - x0, ay = fy - y0;
+        g[y0 * GD + x0] += (1 - ax) * (1 - ay); g[y0 * GD + x1] += ax * (1 - ay); g[y1 * GD + x0] += (1 - ax) * ay; g[y1 * GD + x1] += ax * ay; tot++; } });
+      for (var i = 0; i < g.length; i++) g[i] /= tot;
+      return g;
+    }
+    // Hungarian algorithm on a square cost matrix (rows = columns = n)
+    function assign(c, n) {
+      var u = new Float64Array(n + 1), v = new Float64Array(n + 1), p = new Int32Array(n + 1), way = new Int32Array(n + 1);
+      for (var i = 1; i <= n; i++) {
+        p[0] = i; var j0 = 0, minv = new Float64Array(n + 1).fill(Infinity), used = new Uint8Array(n + 1);
+        do {
+          used[j0] = 1; var i0 = p[j0], delta = Infinity, j1 = 0;
+          for (var j = 1; j <= n; j++) if (!used[j]) {
+            var cur = c[(i0 - 1) * n + j - 1] - u[i0] - v[j];
+            if (cur < minv[j]) { minv[j] = cur; way[j] = j0; }
+            if (minv[j] < delta) { delta = minv[j]; j1 = j; }
+          }
+          for (j = 0; j <= n; j++) { if (used[j]) { u[p[j]] += delta; v[j] -= delta; } else minv[j] -= delta; }
+          j0 = j1;
+        } while (p[j0] !== 0);
+        do { var jj = way[j0]; p[j0] = p[jj]; j0 = jj; } while (j0);
+      }
+      var tot = 0;
+      for (j = 1; j <= n; j++) tot += c[(p[j] - 1) * n + j - 1];
+      return tot;
+    }
+    var SHORTLIST = 1200;
+    function recognizeOne(rawStrokes, top) {
+      if (!rawStrokes.length) return [];
+      var U = normalize(rawStrokes.map(resample)), n = U.length, ug = grid(U);
+      // 1) shortlist by ink layout and stroke count
+      var pre = [];
+      for (var t = 0; t < T.length; t++) {
+        var m = T[t].length, diff = Math.abs(n - m);
+        if (diff > Math.max(2, Math.ceil(0.3 * m))) continue;
+        var g = TG[t], d = 0;
+        for (var q = 0; q < g.length; q++) d += Math.abs(g[q] - ug[q]);
+        pre.push([d + 0.08 * diff, t]);
+      }
+      pre.sort(function (x, y) { return x[0] - y[0]; });
+      if (pre.length > SHORTLIST) pre.length = SHORTLIST;
+      // 2) exact order-free stroke matching on the shortlist
+      var best = [], maxCost = Infinity;
+      for (var p = 0; p < pre.length; p++) {
+        t = pre[p][1];
+        var mm = T[t].length, N = Math.max(n, mm), c = new Float64Array(N * N), lb = 0;
+        for (var a = 0; a < N; a++) {
+          var rowMin = Infinity;
+          for (var b = 0; b < N; b++) { var v = (a < n && b < mm) ? strokeDist(U[a], T[t][b]) : UNMATCHED; c[a * N + b] = v; if (v < rowMin) rowMin = v; }
+          lb += rowMin;
+        }
+        if (best.length >= top && lb / N >= maxCost) continue;
+        var cost = assign(c, N) / N;
+        if (best.length < top || cost < maxCost) {
+          best.push({ ch: chars[t], cost: cost });
+          best.sort(function (x, y) { return x.cost - y.cost; });
+          if (best.length > top) best.pop();
+          maxCost = best[best.length - 1].cost;
+        }
+      }
+      return best;
+    }
+    // People often join two strokes without lifting the pen. Also try the drawing with one
+    // sharply-turning stroke split at its sharpest corner, and keep each character's best score.
+    function sharpestTurn(pts) {
+      var best = { ang: 0, idx: -1 };
+      for (var i = 2; i < pts.length - 2; i++) {
+        var a = pts[i - 2], b = pts[i], c = pts[i + 2];
+        var v1x = b[0] - a[0], v1y = b[1] - a[1], v2x = c[0] - b[0], v2y = c[1] - b[1];
+        var l1 = Math.hypot(v1x, v1y), l2 = Math.hypot(v2x, v2y);
+        if (l1 < 1e-6 || l2 < 1e-6) continue;
+        var ang = Math.acos(Math.max(-1, Math.min(1, (v1x * v2x + v1y * v2y) / (l1 * l2))));
+        if (ang > best.ang) best = { ang: ang, idx: i };
+      }
+      return best;
+    }
+    function recognize(rawStrokes, top) {
+      if (!rawStrokes.length) return [];
+      var variants = [rawStrokes], cands = [];
+      rawStrokes.forEach(function (s, i) {
+        if (s.length < 6) return;
+        var t = sharpestTurn(s);
+        if (t.ang > 1.2) cands.push({ i: i, idx: t.idx, len: s.length });
+      });
+      cands.sort(function (a, b) { return b.len - a.len; });
+      cands.slice(0, 3).forEach(function (c) {
+        var s = rawStrokes[c.i], v = rawStrokes.slice();
+        v.splice(c.i, 1, s.slice(0, c.idx + 1), s.slice(c.idx));
+        variants.push(v);
+      });
+      var bestBy = {};
+      variants.forEach(function (v, k) {
+        recognizeOne(v, top).forEach(function (r) {
+          var cost = r.cost + (k ? 0.01 : 0); // a small preference for the drawing as written
+          if (!(r.ch in bestBy) || cost < bestBy[r.ch]) bestBy[r.ch] = cost;
+        });
+      });
+      return Object.keys(bestBy).map(function (ch) { return { ch: ch, cost: bestBy[ch] }; })
+        .sort(function (a, b) { return a.cost - b.cost; }).slice(0, top);
+    }
+    return { recognize: recognize, size: chars.length };
+  }
+
+  var RECOG = null, recogLoading = null;
+  function loadRecognizer() {
+    if (RECOG) return Promise.resolve(RECOG);
+    if (!recogLoading) {
+      recogLoading = new Promise(function (resolve, reject) {
+        var raw = (document.getElementById("glyph-data").textContent || "").trim();
+        if (!raw || raw.charAt(0) === "_") return reject(new Error("missing"));
+        if (!window.DecompressionStream) return reject(new Error("no-decompress"));
+        var bin = atob(raw), bytes = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        var stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+        new Response(stream).arrayBuffer().then(function (buf) {
+          // layout: 4-byte header length, JSON header {k, c, n}, then the stroke points as bytes
+          var dv = new DataView(buf), hl = dv.getUint32(0, true);
+          var head = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 4, hl)));
+          head.bytes = new Uint8Array(buf, 4 + hl);
+          setTimeout(function () { try { RECOG = makeRecognizer(head); resolve(RECOG); } catch (e) { reject(e); } }, 0);
+        }).catch(reject);
+      }).catch(function (e) { recogLoading = null; throw e; });
+    }
+    return recogLoading;
+  }
+
+  // ---------- session flow ----------
+  function startSession() {
+    var t = testKey, L = lengthKey;
+    var plan = t === "combo" ? [["read", COMBO[L].read], ["listen", COMBO[L].listen], ["write", COMBO[L].write]] : [[t, MODES[t].n[L]]];
+    session = { test: t, lenKey: L, sections: plan.map(function (p) { return { mode: p[0], n: p[1], state: null }; }), si: 0, voice: null, voiceKind: "cmn" };
+    session.grand = session.sections.reduce(function (a, s) { return a + s.n; }, 0);
+    if (t === "write" || t === "combo") setTimeout(function () { loadRecognizer().catch(function () {}); }, 300);
+    if (t === "write") session.voice = mandarinFor(script);
+    if (needsVoice(t)) openSoundCheck(); else beginSection(0);
+  }
+  function beginSection(i) {
+    session.si = i;
+    var sec = session.sections[i], opts = { lenKey: session.lenKey, voiceKind: session.voiceKind };
+    if (session.test === "combo") {
+      opts.sparse = true;
+      if (i > 0) {
+        // aim the first listening and writing questions near the reading result; scoring ignores this
+        var pe = pointEstimate(posterior(session.sections[0].state.hist, cfgOf(session.sections[0].state, false)));
+        opts.prior = { lv: Math.log(pe.V), sd: 0.9 };
+      }
+    }
+    sec.state = newState(sec.mode, sec.n, opts);
+    if (session.test === "combo" && i > 0) showSectionCard(i);
+    else runSection();
+  }
+  var SECTION_TEXT = {
+    listen: "You'll hear each word and pick its meaning. Replay with the button or R. Use Audio sounded wrong to skip a garbled word.",
+    write: "You'll see a meaning and its pinyin. Write each character in its own square, in any stroke order. Check what the site reads, tap a suggestion if it misread you, then press Confirm. Press Don't know to skip a word."
+  };
+  function showSectionCard(i) {
+    var sec = session.sections[i];
+    $("sec-eyebrow").textContent = "Section " + (i + 1) + " of " + session.sections.length;
+    $("sec-title").textContent = MODES[sec.mode].name + " · " + sec.n + " " + MODES[sec.mode].unit;
+    $("sec-text").textContent = SECTION_TEXT[sec.mode] || "";
+    show("section");
+    $("sec-go").focus();
+  }
+  $("sec-go").addEventListener("click", runSection);
+  $("sec-exit").addEventListener("click", leaveTest);
+
+  function runSection() {
+    var sec = session.sections[session.si];
+    state = sec.state;
+    show("test");
+    if (sec.mode === "write" && !RECOG) {
+      el.type.textContent = "Writing";
+      el.count.textContent = session.test === "combo" ? "Writing · 0 / " + state.total : "0 / " + state.total;
+      el.prompt.innerHTML = ""; el.fb.innerHTML = ""; $("q-bad").hidden = true;
+      el.opts.className = "opts";
+      el.opts.innerHTML = '<p class="loadnote">Getting the handwriting reader ready…</p>';
+      loadRecognizer().then(function () { if (session && state === sec.state && !views.test.hidden) runSection(); })
+        .catch(function (e) {
+          var msg = e && e.message === "no-decompress" ? "This browser is too old for the writing test. Try a current version of Chrome, Edge, Safari or Firefox." : "Couldn't start the handwriting reader.";
+          el.opts.innerHTML = '<p class="loadnote">' + msg + ' <button class="btn small ghost" id="w-retry">Try again</button></p>'; $("w-retry").addEventListener("click", runSection);
+        });
+      return;
+    }
+    state.cur = firstQuestion(state);
+    if (!state.cur) return endSection();
+    renderQ(false);
+  }
+  function endSection() {
+    if (session.si < session.sections.length - 1) beginSection(session.si + 1);
+    else finish();
+  }
+
+  // ---------- sound check ----------
+  function sampleText() { return session.voiceKind === "yue" ? "你好，我哋開始啦。" : script === "t" ? "你好，我們開始吧。" : "你好，我们开始吧。"; }
+  function setVoiceKind(k) {
+    session.voiceKind = k;
+    session.voice = k === "yue" ? voiceHK() : mandarinFor(script);
+    $("v-cmn").setAttribute("aria-pressed", k === "cmn");
+    $("v-yue").setAttribute("aria-pressed", k === "yue");
+    $("voice-line").innerHTML = "Voice: <b>" + esc(voiceLabel(session.voice, k)) + "</b>";
+    var note = "";
+    if (k === "cmn" && script === "t" && !voiceTW()) note = "No Taiwan Mandarin voice is installed, so you'll hear mainland Mandarin.";
+    $("snd-note").textContent = note; $("snd-note").hidden = !note;
+  }
+  function openSoundCheck() {
+    $("yue-choice").hidden = !(script === "t" && voiceHK());
+    setVoiceKind("cmn");
+    $("snd-ok").disabled = true;
+    show("sound");
+    $("snd-play").focus();
+  }
+  $("snd-play").addEventListener("click", function () { speak(sampleText(), false); $("snd-ok").disabled = false; });
+  $("v-cmn").addEventListener("click", function () { setVoiceKind("cmn"); });
+  $("v-yue").addEventListener("click", function () { setVoiceKind("yue"); });
+  $("snd-ok").addEventListener("click", function () { beginSection(0); });
+  $("snd-back").addEventListener("click", function () { stopSpeech(); session = null; show("intro"); });
+
+  // ---------- question screens ----------
+  var el = { type: $("q-type"), count: $("q-count"), bar: $("q-bar"), prompt: $("q-prompt"), opts: $("q-opts"), fb: $("q-fb") };
+  function tianzige(word) {
+    var n = word.length, cell = n <= 2 ? 92 : n === 3 ? 80 : n === 4 ? 68 : 56;
+    var vw = Math.min(window.innerWidth, 680) - 40;
+    cell = Math.min(cell, Math.floor(vw / n) - 2);
+    var h = '<div class="tz" style="--cell:' + cell + 'px" lang="zh">';
+    for (var i = 0; i < n; i++) h += '<div class="cell"><span>' + word[i] + "</span></div>";
+    return h + "</div>";
+  }
+  function progress() {
+    var done = 0;
+    for (var i = 0; i < session.si; i++) done += session.sections[i].n;
+    return (done + state.hist.length) / session.grand;
+  }
+  function renderQ(keepFeedback) {
+    var q = state.cur, answered = !!q.res, n = state.hist.length + (answered ? 0 : 1), mk = state.mode.key;
+    var countTxt = Math.min(n, state.total) + " / " + state.total;
+    el.count.textContent = session.test === "combo" ? state.mode.name + " · " + countTxt : countTxt;
+    el.bar.style.transform = "scaleX(" + Math.min(1, progress()) + ")";
+    $("q-bad").hidden = !(mk === "listen" && !answered);
+    if (!answered) $("q-next-row").hidden = true;
+    if (mk === "write") {
+      if (!keepFeedback) renderWriting(q);
+      else showFeedback(q);
+      return;
+    }
+    el.type.textContent = q.f === "word" ? "Which word means this?" : (q.f === "phrase" || q.f === "lphrase") ? "What does this phrase mean?" : "What does this word mean?";
+    if (mk === "listen") {
+      if (!keepFeedback) {
+        el.prompt.innerHTML = '<div class="listen-prompt"><button class="play" id="q-play" aria-label="Play the word again">' + SPEAKER + '</button><span class="hint">Tap to replay, or press R</span></div>';
+        q.plays = 0;
+        $("q-play").addEventListener("click", function () { replay(); });
+      }
+    } else {
+      el.prompt.innerHTML = q.f === "word" ? '<div class="en">' + esc(q.T.d) + "</div>" : tianzige(W(q.T));
+    }
+    var longest = Math.max.apply(null, q.opts.map(function (o) { return W(o).length; }));
+    el.opts.className = "opts" + (q.f === "word" ? " cn" + (longest >= 5 ? " long" : "") : "");
+    el.opts.innerHTML = q.opts.map(function (o, i) {
+      var cls = "opt";
+      if (answered) { if (i === q.ans) cls += " right"; else if (i === q.picked) cls += " wrong"; else cls += " dim"; }
+      return '<button class="' + cls + '" data-i="' + i + '"' + (answered ? " disabled" : "") + '><span class="k">' + (i + 1) + '</span><span class="t"' + (q.f === "word" ? ' lang="zh"' : "") + ">" + esc(q.f === "word" ? W(o) : o.d) + "</span></button>";
+    }).join("");
+    if (!keepFeedback) { el.fb.innerHTML = ""; if (mk === "listen") speak(spokenText(q.T), false, $("q-play")); }
+    else if (answered) showFeedback(q);
+  }
+  function replay() {
+    var q = state && state.cur;
+    if (!q || state.mode.key !== "listen") return;
+    q.plays = (q.plays || 0) + 1;
+    speak(spokenText(q.T), q.plays >= 2, $("q-play"));
+  }
+
+  // writing pad: one square per character, written in any stroke order. After each stroke the
+  // recognizer reads the square; its best guess is shown with a few alternatives to tap.
+  function renderWriting(q) {
+    var word = W(q.T), n = word.length, fine = window.matchMedia && matchMedia("(pointer: fine)").matches;
+    var vw = Math.min(window.innerWidth, 680) - 32 - (n - 1) * 14;
+    var size = Math.max(96, Math.min(fine ? 156 : 140, Math.floor(vw / n)));
+    el.type.textContent = "Write this word";
+    el.prompt.innerHTML = '<div class="wprompt"><div class="en">' + esc(q.T.d) + '</div><div class="py">' + esc(readingOf(q.T)) +
+      (session.voice ? ' <button class="say" id="q-say" aria-label="Play the word">' + SPEAKER + "</button>" : "") + "</div></div>";
+    var cols = "";
+    for (var i = 0; i < n; i++) {
+      cols += '<div class="wcol" data-i="' + i + '"><div class="tz"><div class="wcell" style="--cell:' + size + 'px"><canvas aria-label="Writing square ' + (i + 1) + ' of ' + n + '"></canvas></div></div>' +
+        '<div class="cands"><span class="pick empty" lang="zh">?</span><span class="alts" lang="zh"></span></div>' +
+        '<div class="cellctl"><button class="mini" data-act="undo">Undo</button><button class="mini" data-act="clear">Clear</button></div></div>';
+    }
+    el.opts.className = "opts write";
+    el.opts.innerHTML = '<div class="wgrid">' + cols + '</div><div class="wstatus" id="w-status">Write each character in its own square, in any stroke order.</div>' +
+      '<div class="verdict" id="w-verdict" aria-live="polite" hidden></div>' +
+      '<div class="wanswer" id="w-answer" hidden></div>' +
+      '<div class="wactions" id="w-actions"><button class="btn" id="w-confirm" disabled>Confirm</button><button class="idk" id="w-idk">Don\'t know</button></div>';
+    el.fb.innerHTML = "";
+    if ($("q-say")) $("q-say").addEventListener("click", function () { speak(spokenText(q.T), false, $("q-say")); });
+    $("w-idk").addEventListener("click", function () { finishWrite(q, null); });
+    $("w-confirm").addEventListener("click", function () { confirmWrite(q); });
+    q.ink = []; q.pick = []; q.alts = []; q.manual = [];
+    el.opts.querySelectorAll(".wcol").forEach(function (col, i) {
+      q.ink[i] = []; q.pick[i] = null; q.alts[i] = []; q.manual[i] = false;
+      setupPad(q, i, col.querySelector("canvas"), size);
+      col.querySelector(".cellctl").addEventListener("click", function (e) {
+        var b = e.target.closest("button"); if (!b || q.res) return;
+        if (b.getAttribute("data-act") === "undo") q.ink[i].pop(); else q.ink[i] = [];
+        redraw(q, i); readCell(q, i);
+      });
+      col.querySelector(".alts").addEventListener("click", function (e) {
+        var b = e.target.closest("button"); if (!b || q.res) return;
+        q.pick[i] = b.getAttribute("data-ch"); q.manual[i] = true; showCands(q, i);
+      });
+    });
+  }
+  var pads = [];
+  function setupPad(q, i, canvas, size) {
+    var dpr = window.devicePixelRatio || 1, ctx = canvas.getContext("2d");
+    canvas.width = Math.round(size * dpr); canvas.height = Math.round(size * dpr);
+    ctx.scale(dpr, dpr);
+    pads[i] = { canvas: canvas, ctx: ctx, size: size };
+    var cur = null;
+    function pt(e) { var r = canvas.getBoundingClientRect(); return [(e.clientX - r.left) * size / r.width, (e.clientY - r.top) * size / r.height]; }
+    canvas.addEventListener("pointerdown", function (e) {
+      if (q.res || cur) return; // one pointer at a time
+      e.preventDefault();
+      canvas.setPointerCapture(e.pointerId);
+      cur = { id: e.pointerId, pts: [pt(e)] };
+      inkStyle(ctx, size);
+      ctx.beginPath(); ctx.arc(cur.pts[0][0], cur.pts[0][1], ctx.lineWidth / 2, 0, Math.PI * 2); ctx.fill();
+    });
+    canvas.addEventListener("pointermove", function (e) {
+      if (!cur || e.pointerId !== cur.id) return;
+      var p = pt(e), last = cur.pts[cur.pts.length - 1];
+      if (Math.hypot(p[0] - last[0], p[1] - last[1]) < 1.5) return;
+      ctx.beginPath(); ctx.moveTo(last[0], last[1]); ctx.lineTo(p[0], p[1]); ctx.stroke();
+      cur.pts.push(p);
+    });
+    function end(e) {
+      if (!cur || e.pointerId !== cur.id) return;
+      q.ink[i].push(cur.pts); cur = null;
+      readCell(q, i);
+    }
+    canvas.addEventListener("pointerup", end);
+    canvas.addEventListener("pointercancel", end);
+  }
+  function inkStyle(ctx, size) {
+    ctx.strokeStyle = ctx.fillStyle = cssVar("--ink");
+    ctx.lineWidth = Math.max(3, size / 28); ctx.lineCap = "round"; ctx.lineJoin = "round";
+  }
+  function redraw(q, i) {
+    var p = pads[i], ctx = p.ctx;
+    ctx.clearRect(0, 0, p.size, p.size);
+    inkStyle(ctx, p.size);
+    q.ink[i].forEach(function (s) {
+      ctx.beginPath(); ctx.moveTo(s[0][0], s[0][1]);
+      for (var k = 1; k < s.length; k++) ctx.lineTo(s[k][0], s[k][1]);
+      if (s.length === 1) { ctx.arc(s[0][0], s[0][1], ctx.lineWidth / 2, 0, Math.PI * 2); ctx.fill(); } else ctx.stroke();
+    });
+  }
+  var readTimers = [];
+  function readCell(q, i) {
+    clearTimeout(readTimers[i]);
+    // let the stroke paint first, then read the square
+    readTimers[i] = setTimeout(function () {
+      if (state.cur !== q || q.res) return;
+      var res = q.ink[i].length ? RECOG.recognize(q.ink[i], 6) : [];
+      q.alts[i] = res.map(function (r) { return r.ch; });
+      q.pick[i] = q.alts[i][0] || null; q.manual[i] = false;
+      showCands(q, i);
+    }, 30);
+  }
+  function showCands(q, i) {
+    var col = el.opts.querySelector('.wcol[data-i="' + i + '"]'); if (!col) return;
+    var pick = col.querySelector(".pick");
+    pick.textContent = q.pick[i] || "?";
+    pick.classList.toggle("empty", !q.pick[i]);
+    col.querySelector(".alts").innerHTML = q.alts[i].filter(function (c) { return c !== q.pick[i]; }).slice(0, 4)
+      .map(function (c) { return '<button class="alt" data-ch="' + c + '" aria-label="Use ' + c + ' instead">' + c + "</button>"; }).join("");
+    var some = q.pick.some(function (c) { return !!c; }), all = q.pick.every(function (c) { return !!c; });
+    $("w-confirm").disabled = !some;
+    $("w-status").textContent = all ? "Not what you wrote? Tap a suggestion under the square, or redraw. Then confirm."
+      : some ? "Confirm now for partial credit, or keep writing. Blank squares count as missed." : "Write each character in its own square, in any stroke order.";
+  }
+  function charOk(q, i) { var c = q.pick[i]; return !!c && (c === q.T.s[i] || c === q.T.t[i]); }
+  function confirmWrite(q) {
+    if (q.res || !q.pick.some(function (c) { return !!c; })) return;
+    // simplified or traditional forms both count; each right character earns its share of the word,
+    // weighted by how rare the character is (rarer characters are worth more)
+    var wts = q.T.cw || q.pick.map(function () { return 1; }), tot = 0, got = 0;
+    q.pick.forEach(function (c, i) { tot += wts[i]; if (charOk(q, i)) got += wts[i]; });
+    var credit = tot ? got / tot : 0;
+    finishWrite(q, q.pick.map(function (c) { return c || "＿"; }).join(""), credit);
+  }
+  function finishWrite(q, got, credit) {
+    if (q.res || state.cur !== q) return;
+    q.got = got;
+    if (got === null) credit = 0;
+    var res = credit >= 0.999 ? "right" : credit > 0 ? "partial" : "wrong";
+    record(state, q, res, credit);
+    $("w-idk").disabled = true; $("w-confirm").disabled = true;
+    el.opts.classList.add("locked");
+    el.opts.querySelectorAll(".wcol").forEach(function (col, i) {
+      var pick = col.querySelector(".pick");
+      col.querySelector(".alts").innerHTML = "";
+      if (got === null) { pick.textContent = W(q.T)[i]; pick.className = "pick shown"; return; }
+      var ok = charOk(q, i);
+      if (!q.pick[i]) pick.textContent = "＿";
+      pick.className = "pick " + (ok ? "right" : "wrong");
+      col.classList.add(ok ? "good" : "bad");
+    });
+    $("w-status").textContent = "";
+    var grid = el.opts.querySelector(".wgrid"), v = $("w-verdict");
+    if (got === null) {
+      // a skip isn't a wrong attempt: show the answer quietly
+      v.className = "verdict"; v.textContent = "Here's the answer";
+    } else if (res === "right") {
+      v.className = "verdict good"; v.textContent = "Correct!";
+      playChime(); confettiFrom(grid);
+    } else if (res === "partial") {
+      v.className = "verdict part"; v.textContent = "Partly right · " + Math.round(credit * 100) + "% credit";
+      playPartial();
+      el.opts.querySelectorAll(".wcol.bad").forEach(shake);
+    } else {
+      v.className = "verdict bad"; v.textContent = "Not quite";
+      playBuzz(); shake(grid);
+    }
+    v.hidden = false;
+    showFeedback(q);
+    // writing waits for the player: Next question moves on
+    $("w-actions").innerHTML = '<button class="btn" id="w-next">' + nextLabel() + ' <span aria-hidden="true">→</span></button>';
+    $("w-next").addEventListener("click", function () { advance(); });
+    $("w-next").focus({ preventScroll: true });
+  }
+
+  // ---------- answer feedback: sound, confetti, shake ----------
+  var actx = null;
+  function audio() {
+    try {
+      if (!actx) { var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; actx = new AC(); }
+      if (actx.state === "suspended") actx.resume();
+      return actx;
+    } catch (e) { return null; }
+  }
+  function tone(ctx, type, f0, f1, start, dur, peak, filterHz) {
+    var o = ctx.createOscillator(), g = ctx.createGain(), node = o;
+    o.type = type;
+    o.frequency.setValueAtTime(f0, start);
+    if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, start + dur);
+    if (filterHz) { var lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = filterHz; o.connect(lp); node = lp; }
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.exponentialRampToValueAtTime(peak, start + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+    node.connect(g); g.connect(ctx.destination);
+    o.start(start); o.stop(start + dur + 0.02);
+  }
+  function playChime() {
+    var ctx = audio(); if (!ctx) return;
+    var t = ctx.currentTime + 0.01;
+    // two bright notes a fifth apart, like a small bell
+    tone(ctx, "sine", 880, 880, t, 0.22, 0.16);
+    tone(ctx, "triangle", 1318.5, 1318.5, t + 0.09, 0.38, 0.12);
+    tone(ctx, "sine", 2637, 2637, t + 0.09, 0.18, 0.025);
+  }
+  function playPartial() {
+    var ctx = audio(); if (!ctx) return;
+    var t = ctx.currentTime + 0.01;
+    // a single soft note: something landed, not everything
+    tone(ctx, "sine", 660, 660, t, 0.26, 0.12);
+    tone(ctx, "triangle", 990, 990, t + 0.02, 0.2, 0.04);
+  }
+  function playBuzz() {
+    var ctx = audio(); if (!ctx) return;
+    var t = ctx.currentTime + 0.01;
+    // a short, low, slightly detuned buzz that drops in pitch
+    tone(ctx, "sawtooth", 150, 110, t, 0.3, 0.09, 900);
+    tone(ctx, "square", 147, 108, t, 0.3, 0.05, 700);
+  }
+  function reducedMotion() { return window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches; }
+  function shake(node) {
+    if (reducedMotion()) return;
+    node.classList.remove("shake"); void node.offsetWidth; node.classList.add("shake");
+    node.addEventListener("animationend", function () { node.classList.remove("shake"); }, { once: true });
+  }
+  function confettiFrom(node) {
+    if (reducedMotion()) return;
+    var r = node.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height * 0.4;
+    var cv = document.createElement("canvas"), dpr = window.devicePixelRatio || 1;
+    cv.className = "confetti"; cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
+    document.body.appendChild(cv);
+    var ctx = cv.getContext("2d"); ctx.scale(dpr, dpr);
+    var cols = ["--good", "--accent", "--c-write", "--c-hear", "--grid"].map(cssVar);
+    var parts = [];
+    for (var i = 0; i < 34; i++) {
+      var a = -Math.PI / 2 + (Math.random() - 0.5) * 2.2, sp = 4 + Math.random() * 5;
+      parts.push({ x: cx + (Math.random() - 0.5) * r.width * 0.6, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 2,
+        w: 5 + Math.random() * 4, h: 3 + Math.random() * 3, rot: Math.random() * 6, vr: (Math.random() - 0.5) * 0.4, c: cols[i % cols.length] });
+    }
+    var t0 = performance.now(), DUR = 1100;
+    (function frame(now) {
+      var t = now - t0; ctx.clearRect(0, 0, innerWidth, innerHeight);
+      parts.forEach(function (p) {
+        p.vy += 0.28; p.vx *= 0.985; p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+        ctx.save(); ctx.globalAlpha = Math.max(0, 1 - Math.max(0, t - DUR * 0.6) / (DUR * 0.4));
+        ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = p.c; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore();
+      });
+      if (t < DUR) requestAnimationFrame(frame); else cv.remove();
+    })(t0);
+  }
+
+  function showFeedback(q) {
+    var ok = q.res === "right";
+    if (state.mode.key === "write") {
+      // writing: the answer sits between the verdict and the Next button
+      var box = $("w-answer");
+      el.fb.innerHTML = "";
+      if (!box) return;
+      box.innerHTML = (!ok && q.got ? '<div class="wrote">You wrote <span class="han" lang="zh">' + esc(q.got) + "</span></div>" : "") +
+        '<div class="ans">' + (ok ? "" : '<span class="lbl">Answer</span>') + '<span class="han" lang="zh">' + W(q.T) + '</span><span class="py">' + esc(readingOf(q.T)) + "</span></div>" +
+        '<div class="def">' + esc(q.T.d) + "</div>";
+      box.hidden = false;
+      return;
+    }
+    var lead = ok ? (state.mode.key === "write" ? "Correct: " : "") : (state.mode.key === "write" ? (q.got ? "You wrote " + q.got + " · Answer: " : "Answer: ") : "Not quite: ");
+    el.fb.innerHTML = "<div>" + lead + '<span class="han" lang="zh">' + W(q.T) + '</span><span class="py">' + esc(state.mode.key === "read" ? q.T.p : readingOf(q.T)) + "</span>" + esc(q.T.d) + "</div>" +
+      (state.mode.key !== "read" ? "" : '<div class="countdown" aria-hidden="true"><i></i></div>');
+    var bar = el.fb.querySelector(".countdown i");
+    if (bar && bar.animate && q.until) {
+      var left = Math.max(0, q.until - Date.now());
+      // progress, so linear: it shows how long until the next question
+      bar.animate([{ transform: "scaleX(" + (left / q.wait) + ")" }, { transform: "scaleX(0)" }], { duration: left, easing: "linear", fill: "forwards" });
+    }
+  }
+
+  var advanceTimer = null, RIGHT_MS = 3000, WRONG_MS = 3000, W_RIGHT = 900, W_WRONG = 2600;
+  function nextLabel() {
+    var last = state.hist.length >= state.total, lastSection = !session || session.si >= session.sections.length - 1;
+    return last ? (lastSection ? "See results" : "Next section") : "Next question";
+  }
+  function showNextRow() {
+    $("q-next").innerHTML = nextLabel() + ' <span aria-hidden="true">→</span>';
+    $("q-next-row").hidden = false;
+    $("q-next").focus({ preventScroll: true });
+  }
+  $("q-next").addEventListener("click", function () { advance(); });
+  function answer(i) {
+    var q = state && state.cur;
+    if (!q || q.res || q.f === "write") return;
+    q.picked = i;
+    var res = record(state, q, i === q.ans ? "right" : "wrong");
+    if (state.mode.key === "listen") {
+      // listening waits for the player: Next question moves on
+      renderQ(true);
+      showNextRow();
+      return;
+    }
+    var wait = res === "right" ? RIGHT_MS : WRONG_MS;
+    q.wait = wait; q.until = Date.now() + wait;
+    renderQ(true);
+    advanceTimer = setTimeout(advance, wait);
+  }
+  function badAudio() {
+    var q = state && state.cur;
+    if (!q || q.res || state.mode.key !== "listen") return;
+    // the question is dropped: not scored, not counted
+    state.voided++;
+    stopSpeech();
+    var nq = firstQuestion(state);
+    if (!nq) return endSection();
+    state.cur = nq;
+    renderQ(false);
+  }
+  function advance() {
+    clearTimeout(advanceTimer); advanceTimer = null;
+    if (!state || !session) return;
+    var q = decideNext(state);
+    if (!q) return endSection();
+    state.cur = q;
+    renderQ(false);
+  }
+
+  el.opts.addEventListener("click", function (e) { var b = e.target.closest(".opt"); if (b && !b.disabled) answer(+b.getAttribute("data-i")); });
+  $("q-bad").addEventListener("click", badAudio);
+  views.test.addEventListener("click", function (e) { if (advanceTimer && state && state.mode.key === "read" && !e.target.closest(".opt, .exit, .exit-confirm, .wcell, .say, .play, .linkish, .idk, .btn")) advance(); });
+
+  // ---------- exit ----------
+  var exitBox = $("exit-confirm"), exitBtn = $("exit-btn");
+  function openExit() { exitBox.hidden = false; exitBtn.setAttribute("aria-expanded", "true"); $("exit-no").focus(); }
+  function closeExit() { if (!exitBox) return; exitBox.hidden = true; exitBtn.setAttribute("aria-expanded", "false"); }
+  function leaveTest() {
+    clearTimeout(advanceTimer); advanceTimer = null;
+    stopSpeech();
+    state = null; session = null;
+    show("intro");
+  }
+  exitBtn.addEventListener("click", function () { if (exitBox.hidden) openExit(); else closeExit(); });
+  $("exit-yes").addEventListener("click", leaveTest);
+  $("exit-no").addEventListener("click", function () { closeExit(); exitBtn.focus(); });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (!views.section.hidden && e.key === "Escape") { e.preventDefault(); leaveTest(); return; }
+    if (views.test.hidden || !state || !state.cur) return;
+    if (e.key === "Escape") { e.preventDefault(); if (exitBox.hidden) openExit(); else closeExit(); return; }
+    if (!exitBox.hidden) return; // answer keys pause while the leave prompt is open
+    if ((e.key === "r" || e.key === "R") && state.mode.key === "listen") { e.preventDefault(); replay(); return; }
+    if (state.cur.res) {
+      if ((advanceTimer || state.mode.key !== "read") && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); advance(); }
+      return;
+    }
+    if (state.mode.key === "write" && e.key === "Enter" && !$("w-confirm").disabled) { e.preventDefault(); confirmWrite(state.cur); return; }
+    if (state.mode.key !== "write" && e.key >= "1" && e.key <= "4") { e.preventDefault(); answer(+e.key - 1); }
+  });
+
+  $("start").addEventListener("click", function () { if (!$("start").disabled) startSession(); });
+  $("again").addEventListener("click", function () { testKey = session.test; lengthKey = session.lenKey; startSession(); });
+  $("home").addEventListener("click", function () { session = null; state = null; setTest(testKey); show("intro"); });
+
+  // ---------- results ----------
+  function roundNice(n) { var step = n < 1000 ? 10 : n < 10000 ? 50 : 100; return Math.round(n / step) * step; }
+  function levelText(n, mode) {
+    if (n < 300) return "Just getting started";
+    if (n < 500) return "Early beginner, working toward HSK 1";
+    for (var i = 1; i < HSK.length; i++) if (n < HSK[i][1]) return "Around HSK " + HSK[i - 1][0] + " in vocabulary size";
+    if (n < 20000) return "Beyond HSK 7–9 vocabulary size: advanced " + mode.noun;
+    return "Very advanced: near-native " + mode.adj + " vocabulary";
+  }
+  function modeLabel(res) {
+    if (res.mode.key === "listen" && res.voiceKind === "yue") return "Estimated Cantonese listening vocabulary";
+    return res.mode.label;
+  }
+  function shortName(res) { return res.mode.key === "listen" && res.voiceKind === "yue" ? "Hear (Cantonese)" : res.mode.short; }
+
+  var RESULTS = [], reviewFilter = "miss", reviewSec = 0;
+  function renderReview() {
+    var res = RESULTS[reviewSec]; if (!res) return;
+    var st = res.state;
+    var right = 0, wrong = 0, part = 0, credit = 0;
+    st.hist.forEach(function (h) { credit += h.credit; if (h.res === "right") right++; else if (h.res === "partial") part++; else wrong++; });
+    var acc = st.hist.length ? Math.round(100 * credit / st.hist.length) : 0;
+    $("r-stats").innerHTML = "<div><b>" + right + "</b><span>correct</span></div><div><b>" + (wrong + part) + "</b><span>" + (res.mode.key === "write" ? (part ? "missed or partly right" : "missed") : "wrong") + "</span></div><div><b>" + acc + "%</b><span>" + (part ? "score with partial credit" : "accuracy") + "</span></div>";
+    var rows = st.hist.filter(function (h) { return reviewFilter === "all" || (reviewFilter === "right" ? h.res === "right" : h.res !== "right"); });
+    rows = rows.slice().sort(function (a, b) { return a.T.r - b.T.r; });
+    var box = $("r-review");
+    if (!rows.length) {
+      box.innerHTML = '<p class="empty">' + (reviewFilter === "miss" ? "Nothing missed. Every answer was right." : "No correct answers this time.") + "</p>";
+      return;
+    }
+    var yue = res.voiceKind === "yue" && res.mode.key === "listen";
+    box.innerHTML = rows.map(function (h) {
+      var tag = h.res === "right" ? "✓ right" : h.res === "partial" ? "◐ " + Math.round(h.credit * 100) + "%" : res.mode.key === "write" ? "✗ missed" : "✗ wrong";
+      return '<div class="rv"><span class="w" lang="zh">' + W(h.T) + '</span><span class="d"><span class="py">' + esc(yue && h.T.jp ? h.T.jp : h.T.p) + "</span>" + esc(h.T.d) + (h.got && h.res !== "right" ? '<span class="sec">You wrote ' + esc(h.got) + "</span>" : "") + '</span><span class="tag ' + h.res + '" title="Frequency rank">#' + fmt(h.T.r) + " · " + tag + "</span></div>";
+    }).join("");
+  }
+  document.querySelectorAll("#r-filter-tabs button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      reviewFilter = b.getAttribute("data-f");
+      document.querySelectorAll("#r-filter-tabs button").forEach(function (x) { x.setAttribute("aria-pressed", x === b); });
+      renderReview();
+    });
+  });
+  function renderSecTabs() {
+    var box = $("r-sec-tabs");
+    box.hidden = RESULTS.length < 2;
+    box.innerHTML = RESULTS.map(function (r, i) { return '<button data-s="' + i + '" aria-pressed="' + (i === reviewSec) + '">' + r.mode.name + "</button>"; }).join("");
+    box.querySelectorAll("button").forEach(function (b) {
+      b.addEventListener("click", function () { reviewSec = +b.getAttribute("data-s"); renderSecTabs(); renderReview(); });
+    });
+  }
+
+  function drawScale() {
+    var svg = $("r-scale"), multi = RESULTS.length > 1;
+    var W0 = Math.max(280, Math.round(svg.getBoundingClientRect().width) || 640), L = 18, R = W0 - 18, min = Math.log10(100), max = Math.log10(50000);
+    var H = multi ? 132 : 96, y = multi ? 96 : 52;
+    svg.setAttribute("viewBox", "0 0 " + W0 + " " + H);
+    function x(n) { return L + (Math.log10(Math.max(100, Math.min(50000, n))) - min) / (max - min) * (R - L); }
+    var h = '<line x1="' + L + '" x2="' + R + '" y1="' + y + '" y2="' + y + '" stroke="var(--line)" stroke-width="2"/>';
+    [100, 1000, 10000].forEach(function (n) {
+      h += '<text x="' + x(n) + '" y="' + (y + 32) + '" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono, monospace">' + fmt(n) + "</text>";
+    });
+    if (W0 >= 420) h += '<text x="' + R + '" y="' + (y + 32) + '" text-anchor="end" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono, monospace">50,000</text>';
+    HSK.forEach(function (lv) {
+      var xx = x(lv[1]);
+      h += '<line x1="' + xx + '" x2="' + xx + '" y1="' + (y - 5) + '" y2="' + (y + 5) + '" stroke="var(--muted)" stroke-width="1.5"/>';
+      h += '<text x="' + xx + '" y="' + (y + 18) + '" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="Hanken Grotesk, sans-serif">' + lv[0] + "</text>";
+    });
+    h += '<text x="' + (x(500) - 10) + '" y="' + (y + 18) + '" text-anchor="end" font-size="11" fill="var(--muted)" font-weight="600" font-family="Hanken Grotesk, sans-serif">HSK</text>';
+    if (!multi) {
+      var r = RESULTS[0].r, ex = x(r.est);
+      h += '<rect x="' + x(r.lo) + '" y="' + (y - 7) + '" width="' + Math.max(3, x(r.hi) - x(r.lo)) + '" height="14" rx="4" fill="var(--accent-soft)"/>';
+      h += '<line x1="' + ex + '" x2="' + ex + '" y1="' + (y - 22) + '" y2="' + (y + 8) + '" stroke="var(--grid)" stroke-width="2"/>';
+      h += '<circle cx="' + ex + '" cy="' + y + '" r="6" fill="var(--grid)" stroke="var(--surface)" stroke-width="2"/>';
+      var anchor = ex < 90 ? "start" : ex > W0 - 90 ? "end" : "middle";
+      h += '<text x="' + ex + '" y="' + (y - 28) + '" text-anchor="' + anchor + '" font-size="13" font-weight="600" fill="var(--ink)" font-family="IBM Plex Mono, monospace">You · ' + fmt(roundNice(r.est)) + "</text>";
+    } else {
+      // one row per skill: its likely range as a line, its estimate as a dot, the number beside it
+      RESULTS.forEach(function (res, i) {
+        var r = res.r, yy = 16 + i * 24, col = "var(" + res.mode.color + ")", ex = x(r.est), a = x(r.lo), b = x(r.hi);
+        h += '<line x1="' + a + '" x2="' + Math.max(a + 2, b) + '" y1="' + yy + '" y2="' + yy + '" stroke="' + col + '" stroke-width="3" stroke-linecap="round" opacity=".45"/>';
+        h += '<circle cx="' + ex + '" cy="' + yy + '" r="6" fill="' + col + '" stroke="var(--surface)" stroke-width="2"/>';
+        var right = b + 10 < W0 - 110, tx = right ? b + 10 : a - 10;
+        h += '<text x="' + tx + '" y="' + (yy + 4) + '" text-anchor="' + (right ? "start" : "end") + '" font-size="12" font-weight="600" fill="var(--ink)" font-family="IBM Plex Mono, monospace">' + esc(shortName(res)) + " " + fmt(roundNice(r.est)) + "</text>";
+        h += '<line x1="' + ex + '" x2="' + ex + '" y1="' + (yy + 7) + '" y2="' + y + '" stroke="' + col + '" stroke-width="1" stroke-dasharray="2 3" opacity=".6"/>';
+      });
+    }
+    svg.innerHTML = h;
+  }
+
+  var GROUPS = [
+    { from: 0, to: 1, label: "Top 2k" }, { from: 2, to: 3, label: "2k–5k" }, { from: 4, to: 5, label: "5k–10k" },
+    { from: 6, to: 7, label: "10k–19k" }, { from: 8, to: 10, label: "19k–40k" }
+  ].filter(function (g) { return g.from < NB; });
+  function groupShare(res, g) {
+    var to = Math.min(g.to, NB - 1), words = 0, known = 0, n = 0, right = 0;
+    for (var b = g.from; b <= to; b++) { words += SIZES[b]; known += SIZES[b] * res.r.p[b]; n += res.state.stats[b].n; right += res.state.stats[b].r; }
+    return { p: known / words, n: n, right: right, lo: BANDS[g.from].lo, hi: BANDS[to].hi };
+  }
+  function drawBands() {
+    var box = $("r-bands"), lab = $("r-blabels"), multi = RESULTS.length > 1;
+    box.style.setProperty("--nb", GROUPS.length); lab.style.setProperty("--nb", GROUPS.length);
+    var h = "", labels = "";
+    [50, 100].forEach(function (g) { h += '<div class="gl" style="bottom:' + g + '%"><span>' + g + "%</span></div>"; });
+    GROUPS.forEach(function (g) {
+      var parts = RESULTS.map(function (res) { return { res: res, s: groupShare(res, g) }; });
+      var first = parts[0].s;
+      var tip = "Words ranked " + fmt(first.lo) + "–" + fmt(first.hi) + ": " + parts.map(function (x) {
+        return (multi ? shortName(x.res) + " " : "about ") + Math.round(x.s.p * 100) + "%" + (multi ? "" : " known") + " (" + (x.s.n ? (Math.round(x.s.right * 10) / 10) + " of " + x.s.n + " right" : "no questions") + ")";
+      }).join(multi ? " · " : "");
+      var fills = parts.map(function (x) { return '<div class="fill" style="height:' + Math.max(1, x.s.p * 100) + "%" + (multi ? ";background:var(" + x.res.mode.color + ")" : "") + '"></div>'; }).join("");
+      h += '<div class="bcol" tabindex="0">' + (multi ? '<div class="fills">' + fills + "</div>" : fills) + '<div class="tipwrap"><div class="tip">' + tip + "</div></div></div>";
+      labels += "<span>" + g.label + (multi ? "" : "<b>" + Math.round(first.p * 100) + "%</b>") + "</span>";
+    });
+    box.innerHTML = h;
+    wireTips(box);
+    lab.innerHTML = labels;
+    var leg = $("r-legend");
+    leg.hidden = !multi;
+    leg.innerHTML = multi ? RESULTS.map(function (res) { return '<span><i style="background:var(' + res.mode.color + ')"></i>' + esc(shortName(res)) + "</span>"; }).join("") : "";
+  }
+
+  var tipTimer = null, tipCloseTimer = null;
+  function wireTips(box) {
+    box.removeAttribute("data-instant");
+    box.querySelectorAll(".bcol").forEach(function (c) {
+      c.addEventListener("pointerenter", function (e) {
+        if (e.pointerType !== "mouse") return;
+        clearTimeout(tipTimer); clearTimeout(tipCloseTimer);
+        var open = box.querySelector(".bcol.show");
+        if (open) { box.setAttribute("data-instant", ""); open.classList.remove("show"); c.classList.add("show"); }
+        else { box.removeAttribute("data-instant"); tipTimer = setTimeout(function () { c.classList.add("show"); }, 180); }
+      });
+      c.addEventListener("pointerleave", function (e) {
+        if (e.pointerType !== "mouse") return;
+        clearTimeout(tipTimer);
+        tipCloseTimer = setTimeout(function () { c.classList.remove("show"); box.removeAttribute("data-instant"); }, 60);
+      });
+      c.addEventListener("click", function () {
+        var was = c.classList.contains("show");
+        box.querySelectorAll(".bcol.show").forEach(function (x) { x.classList.remove("show"); });
+        if (!was) c.classList.add("show");
+      });
+    });
+  }
+
+  function showNumber(value, suffix) {
+    var box = $("r-num");
+    var text = fmt(value) + suffix;
+    box.setAttribute("aria-label", text + " words");
+    if (!window.customElements || !customElements.get("number-flow")) { box.textContent = text; return; }
+    box.textContent = "";
+    var nf = document.createElement("number-flow");
+    nf.locales = "en-US"; nf.numberSuffix = suffix; nf.setAttribute("aria-hidden", "true");
+    box.appendChild(nf);
+    nf.update(0);
+    setTimeout(function () { nf.update(value); }, 120);
+  }
+  function gapSentence() {
+    var byMode = {};
+    RESULTS.forEach(function (r) { byMode[r.mode.key] = r; });
+    var sorted = RESULTS.slice().sort(function (a, b) { return b.r.est - a.r.est; });
+    var hi = sorted[0], lo = sorted[sorted.length - 1];
+    if (hi.r.est < 1.15 * lo.r.est + 50) return "Your three skills are close: all around " + fmt(roundNice(lo.r.est)) + "–" + fmt(roundNice(hi.r.est)) + " words.";
+    function phrase(r, first) {
+      var n = fmt(roundNice(r.r.est));
+      if (r.mode.key === "read") return "read about " + n + " words";
+      if (r.mode.key === "listen") return "understand about " + n + (first ? " words" : "") + " by ear" + (r.voiceKind === "yue" ? " in Cantonese" : "");
+      return "can write about " + n + (first ? " words" : "");
+    }
+    return "You " + phrase(hi, true) + ", but " + phrase(lo, false) + ".";
+  }
+  var resizeTimer = null;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () { if (RESULTS.length && !views.result.hidden) drawScale(); }, 120);
+  });
+
+  function finish() {
+    stopSpeech();
+    el.bar.style.transform = "scaleX(1)";
+    RESULTS = session.sections.map(function (s) { return { mode: s.state.mode, state: s.state, voiceKind: s.state.voiceKind, r: estimate(s.state) }; });
+    var multi = RESULTS.length > 1;
+    $("r-single").hidden = multi; $("r-combo").hidden = !multi;
+    if (!multi) {
+      var res = RESULTS[0], r = res.r, capped = r.pLast > 0.5;
+      $("r-label").textContent = modeLabel(res);
+      showNumber(roundNice(r.est), capped ? "+" : "");
+      $("r-range").textContent = "Likely range " + fmt(roundNice(r.lo)) + " – " + fmt(roundNice(r.hi)) + " words" + (capped ? " (you know most of the rarest words in the test, so the true figure is probably higher)" : "");
+      $("r-level").textContent = levelText(r.est, res.mode);
+      var v = res.state.voided;
+      $("r-len").textContent = v ? v + (v === 1 ? " question was" : " questions were") + " skipped for bad audio and not scored." : "";
+      $("r-len").hidden = !v;
+      $("r-scale-sub").textContent = "Your estimate and its likely range, against the cumulative word lists of the HSK 3.0 levels (log scale).";
+    } else {
+      $("r-skills").innerHTML = RESULTS.map(function (res) {
+        return '<div class="skill"><div class="nm"><i style="background:var(' + res.mode.color + ')"></i>' + esc(shortName(res)) + '</div><div class="v">' + fmt(roundNice(res.r.est)) + (res.r.pLast > 0.5 ? "+" : "") + '</div><div class="rg">' + fmt(roundNice(res.r.lo)) + " – " + fmt(roundNice(res.r.hi)) + " words</div></div>";
+      }).join("");
+      $("r-gap").textContent = gapSentence();
+      $("r-combo-note").textContent = "Each section was short, so each range is wide; take a standalone test for a tighter number.";
+      $("r-scale-sub").textContent = "Each skill's estimate (dot) and likely range (line), against the cumulative word lists of the HSK 3.0 levels (log scale).";
+    }
+    var m = RESULTS.map(function (x) { return x.mode.key; });
+    var notes = [];
+    if (m.indexOf("read") >= 0 || m.indexOf("listen") >= 0) notes.push("In multiple choice the fit expects a lucky guess one time in four and an occasional slip on a word you know, so guessing can't inflate the result.");
+    if (m.indexOf("write") >= 0) notes.push("Writing has no guessing, so its fit only allows for an occasional slip, such as a misread character. A partly written word counts as a fraction of a right answer, weighted by how rare each character is.");
+    $("r-note-mode").textContent = notes.join(" ");
+    reviewFilter = "miss"; reviewSec = 0;
+    document.querySelectorAll("#r-filter-tabs button").forEach(function (x) { x.setAttribute("aria-pressed", x.getAttribute("data-f") === "miss"); });
+    show("result");
+    drawScale(); drawBands(); renderSecTabs(); renderReview();
+  }
+
+  setScript(script);
+  setTest(testKey);
+  setLength(lengthKey);
+  // exposed for testing
+  window.__cvt = {
+    MODES: MODES, BANDS: BANDS, COMBO: COMBO, newState: newState, decideNext: decideNext, firstQuestion: firstQuestion, record: record, estimate: estimate,
+    posterior: posterior, pointEstimate: pointEstimate, cfgOf: cfgOf,
+    getState: function () { return state; }, getSession: function () { return session; }, setScript: setScript
+  };
+})();
+</script>
